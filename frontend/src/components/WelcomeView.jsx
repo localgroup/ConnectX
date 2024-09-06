@@ -1,8 +1,14 @@
 import React from 'react';
 import { Brackets, X } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 
 const currentYear = new Date().getFullYear();
+
+
+function RegisterRoute() {
+  const navigate = useNavigate();
+  return () => navigate('/register');
+}
 
 const ConnectXLogo = () => (
   <div className="relative w-1/2 h-screen bg-black">
@@ -15,6 +21,9 @@ const ConnectXLogo = () => (
 
 
 function App() {
+
+  const navigateToRegister = RegisterRoute(); 
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-black text-white">
       {/* Left section (Logo) */}
@@ -31,7 +40,7 @@ function App() {
           
           <div className="space-y-3">
           <h5 className="text-3xl mb-8">Join today.</h5>
-            <button className="w-full bg-primary text-white rounded-full py-2 px-4 font-bold">
+            <button className="w-full bg-primary text-white rounded-full py-2 px-4 font-bold" onClick={navigateToRegister}>
               Create account
             </button>
             <p className="text-xs text-gray-400">
