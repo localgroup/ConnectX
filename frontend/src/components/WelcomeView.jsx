@@ -1,238 +1,78 @@
-import React, { useState } from 'react';
-import styled from '@emotion/styled';
-import "../styles/Welcome.css";
+import React from 'react';
+import { Brackets, X } from 'lucide-react';
 
 
-const AppContainer = styled.div`
-  width: 100vw;
-  max-width: 100%;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  background-color: black;
-  color: white;
-  display: flex;
-  flex-direction: column;
-`;
+const currentYear = new Date().getFullYear();
 
-const Main = styled.main`
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-`;
-
-const Card = styled.div`
-  width: 100%;
-  max-width: 400px;
-`;
-
-const CardContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const LogoContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-`;
-
-const ConnectXLogo = styled.div`
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 2rem auto;
-`;
-
-const XIcon = styled.div`
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  font-weight: bold;
-  color: #1da1f2;
-  text-shadow: 0 0 10px #1da1f2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-
-const ConnectXLogoComponent = () => (
-  <LogoContainer>
-    <ConnectXLogo>
-      <XIcon>Connect[X]</XIcon>
-    </ConnectXLogo>
-  </LogoContainer>
+const ConnectXLogo = () => (
+  <div className="relative w-1/2 h-screen bg-black">
+    <Brackets className="w-full h-full text-primary absolute" />
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-5/6 px-8">
+      <X className="w-full h-full text-primary" />
+    </div>
+  </div>
 );
 
-const Heading = styled.h1`
-  font-size: 3rem;
-  font-weight: bold;
-  letter-spacing: -0.05em;
-`;
 
-const SubHeading = styled.h2`
-  font-size: 1.875rem;
-  font-weight: bold;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  background-color: black;
-  border: 1px solid #333;
-  border-radius: 0.25rem;
-  color: white;
-  &::placeholder {
-    color: #666;
-  }
-`;
-
-const Button = styled.button`
-  width: 100%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 9999px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-`;
-
-const PrimaryButton = styled(Button)`
-  background-color: white;
-  color: black;
-  &:hover {
-    background-color: #e6e6e6;
-  }
-`;
-
-const SecondaryButton = styled(Button)`
-  background-color: black;
-  color: #1da1f2;
-  border: 1px solid #1da1f2;
-  &:hover {
-    background-color: rgba(29, 161, 242, 0.1);
-  }
-`;
-
-const Divider = styled.div`
-  display: flex;
-  align-items: center;
-  text-align: center;
-  &::before, &::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #333;
-  }
-  &::before {
-    margin-right: 0.5em;
-  }
-  &::after {
-    margin-left: 0.5em;
-  }
-`;
-
-const SmallText = styled.p`
-  font-size: 0.75rem;
-  color: #666;
-`;
-
-const Footer = styled.footer`
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.75rem;
-  color: #666;
-`;
-
-const FooterNav = styled.nav`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem 0.5rem;
-  margin-bottom: 0.5rem;
-`;
-
-const FooterLink = styled.a`
-  color: #666;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-export default function Welcomeview() {
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted', { email, username });
-  };
-
+function App() {
   return (
-    <AppContainer>
-      <Main>
-        <Card>
-          <CardContent>
-            <ConnectXLogoComponent />
-            <div>
-              <Heading>Happening now</Heading>
-              <SubHeading>Join today.</SubHeading>
-            </div>
-            <Form onSubmit={handleSubmit}>
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-              <PrimaryButton type="submit">Next</PrimaryButton>
-            </Form>
-            <Divider>or</Divider>
-            <SecondaryButton>Create account</SecondaryButton>
-            <SmallText>
-              By signing up, you agree to the <a href="#">Terms of Service</a> and{' '}
-              <a href="#">Privacy Policy</a>, including <a href="#">Cookie Use</a>.
-            </SmallText>
-            <div>
-              <SubHeading>Already have an account?</SubHeading>
-              <SecondaryButton>Sign in</SecondaryButton>
-            </div>
-          </CardContent>
-        </Card>
-      </Main>
-      <Footer>
-        <FooterNav>
-          {['About', 'Download the ConnectX app', 'Help Center', 'Terms of Service', 
-            'Privacy Policy', 'Cookie Policy', 'Accessibility', 'Ads info', 'Blog', 
-            'Careers', 'Brand Resources', 'Advertising', 'Marketing', 'ConnectX for Business', 
-            'Developers', 'Directory', 'Settings'].map((link) => (
-            <FooterLink key={link} href="#">{link}</FooterLink>
-          ))}
-        </FooterNav>
-        <p>© 2024 ConnectX Corp.</p>
-      </Footer>
-    </AppContainer>
+    <div className="min-h-screen flex flex-col md:flex-row bg-black text-white">
+      {/* Left section (Logo) */}
+      <div className="md:w-1/2 flex justify-center items-center">
+        <ConnectXLogo />
+      </div>
+
+      {/* Right section (Form) */}
+      <div className="md:w-1/2 flex flex-col justify-center p-8 md:p-16">
+        <div className="max-w-md mx-auto">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-8 whitespace-nowrap">Happening now</h1>
+          </div>
+          
+          <div className="space-y-3">
+          <h5 className="text-3xl mb-8">Join today.</h5>
+            <button className="w-full bg-primary text-white rounded-full py-2 px-4 font-bold">
+              Create account
+            </button>
+            <p className="text-xs text-gray-400">
+              By signing up, you agree to the <a href="#" className="text-primary">Terms of Service</a> and{' '}
+              <a href="#" className="text-primary">Privacy Policy</a>, including <a href="#" className="text-primary">Cookie Use</a>.
+            </p>
+          </div>
+          <div className="mt-12">
+            <h3 className="font-bold mb-4">Already have an account?</h3>
+            <button className="w-full bg-transparent text-primary border border-gray-700 rounded-full py-2 px-4 font-bold hover:bg-primary/10">
+              Sign in
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="absolute bottom-0 left-0 right-0 p-4 text-center text-xs text-gray-500">
+        <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-2">
+          <a href="#" className="hover:underline">About</a>
+          <a href="#" className="hover:underline">Download the ConnectX app</a>
+          <a href="#" className="hover:underline">Help Center</a>
+          <a href="#" className="hover:underline">Terms of Service</a>
+          <a href="#" className="hover:underline">Privacy Policy</a>
+          <a href="#" className="hover:underline">Cookie Policy</a>
+          <a href="#" className="hover:underline">Accessibility</a>
+          <a href="#" className="hover:underline">Ads info</a>
+          <a href="#" className="hover:underline">Blog</a>
+          <a href="#" className="hover:underline">Careers</a>
+          <a href="#" className="hover:underline">Brand Resources</a>
+          <a href="#" className="hover:underline">Advertising</a>
+          <a href="#" className="hover:underline">Marketing</a>
+          <a href="#" className="hover:underline">ConnectX for Business</a>
+          <a href="#" className="hover:underline">Developers</a>
+          <a href="#" className="hover:underline">Directory</a>
+          <a href="#" className="hover:underline">Settings</a>
+        </nav>
+        <p>© {currentYear} ConnectX Corp.</p>
+      </footer>
+    </div>
   );
 }
+
+export default App;

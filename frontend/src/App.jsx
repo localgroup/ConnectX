@@ -1,6 +1,7 @@
 import react from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Welcome from "./pages/Welcome"
+import './index.css';
 import ProtectedRoute from "./components/ProtectedRoute"
 
 
