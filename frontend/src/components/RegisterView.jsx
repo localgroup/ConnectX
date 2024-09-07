@@ -14,7 +14,7 @@ const ConnectXLogo = () => (
     </div>
   );
 
-function App() {
+export default function RegisterView() {
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -69,15 +69,16 @@ function App() {
 
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col lg:flex-row">
-      {/* Left section (Logo) */}
-      <div className="lg:w-1/2 flex justify-center items-center p-4">
-        <ConnectXLogo />
-      </div>
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      <div className="flex flex-col lg:flex-row flex-grow">
+        {/* Left section (Logo) */}
+        <div className="lg:w-1/2 flex justify-center items-center p-4">
+          <ConnectXLogo />
+        </div>
 
       {/* Right section (Form) */}
       <div className="lg:w-1/2 flex flex-col justify-center p-8 md:p-16">
-        <div className="max-w-md mx-auto">
+          <div className="max-w-md mx-auto">
           <h1 className="text-3xl font-bold mb-8">Create your account</h1>
           <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -168,13 +169,15 @@ function App() {
             <a href="#" className="text-primary hover:underline">Privacy Policy</a>, including <a href="#" className="text-primary hover:underline">Cookie Use</a>.
           </p>
           <p className="mt-6 text-sm">
-            Already have an account? <a href="#" className="text-primary hover:underline">Log in</a>
+            Already have an account? <a href="/login" className="text-primary hover:underline">Log in</a>
           </p>
         </div>
       </div>
+      </div>
+      
 
       {/* Footer */}
-      <footer className="absolute bottom-0 left-0 right-0 p-4 text-center text-xs text-gray-500">
+      <footer className="mt-auto p-4 text-center text-xs text-gray-500">
         <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-2">
           <a href="#" className="hover:underline">About</a>
           <a href="#" className="hover:underline">Download the ConnectX app</a>
@@ -200,4 +203,3 @@ function App() {
   );
 }
 
-export default App;

@@ -10,6 +10,11 @@ function RegisterRoute() {
   return () => navigate('/register');
 }
 
+function SigninRoute() {
+  const navigate = useNavigate();
+  return () => navigate('/login');
+}
+
 const ConnectXLogo = () => (
   <div className="relative w-1/2 h-screen bg-black">
     <Brackets className="w-full h-full text-primary absolute" />
@@ -20,45 +25,48 @@ const ConnectXLogo = () => (
 );
 
 
-function App() {
+export default function WelcomeView() {
 
   const navigateToRegister = RegisterRoute(); 
+  const navigateToLogin = SigninRoute(); 
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-black text-white">
-      {/* Left section (Logo) */}
-      <div className="md:w-1/2 flex justify-center items-center">
-        <ConnectXLogo />
-      </div>
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      <div className="flex flex-col lg:flex-row flex-grow">
+        {/* Left section (Logo) */}
+        <div className="md:w-1/2 flex justify-center items-center">
+          <ConnectXLogo />
+        </div>
 
-      {/* Right section (Form) */}
-      <div className="md:w-1/2 flex flex-col justify-center p-8 md:p-16">
-        <div className="max-w-md mx-auto">
-          <div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-8 whitespace-nowrap">Happening now</h1>
-          </div>
-          
-          <div className="space-y-3">
-          <h5 className="text-3xl mb-8">Join today.</h5>
-            <button className="w-full bg-primary text-white rounded-full py-2 px-4 font-bold" onClick={navigateToRegister}>
-              Create account
-            </button>
-            <p className="text-xs text-gray-400">
-              By signing up, you agree to the <a href="#" className="text-primary">Terms of Service</a> and{' '}
-              <a href="#" className="text-primary">Privacy Policy</a>, including <a href="#" className="text-primary">Cookie Use</a>.
-            </p>
-          </div>
-          <div className="mt-12">
-            <h3 className="font-bold mb-4">Already have an account?</h3>
-            <button className="w-full bg-transparent text-primary border border-gray-700 rounded-full py-2 px-4 font-bold hover:bg-primary/10">
-              Sign in
-            </button>
+        {/* Right section (Form) */}
+        <div className="lg:w-1/2 flex flex-col justify-center p-8 md:p-16">
+          <div className="max-w-md mx-auto">
+            <div>
+              <h1 className="text-5xl md:text-6xl font-bold mb-8 whitespace-nowrap">Happening now</h1>
+            </div>
+            
+            <div className="space-y-3">
+            <h5 className="text-3xl mb-8">Join today.</h5>
+              <button className="w-full bg-primary text-white rounded-full py-2 px-4 font-bold" onClick={navigateToRegister}>
+                Create account
+              </button>
+              <p className="text-xs text-gray-400">
+                By signing up, you agree to the <a href="#" className="text-primary">Terms of Service</a> and{' '}
+                <a href="#" className="text-primary">Privacy Policy</a>, including <a href="#" className="text-primary">Cookie Use</a>.
+              </p>
+            </div>
+            <div className="mt-12">
+              <h3 className="font-bold mb-4">Already have an account?</h3>
+              <button onClick={navigateToLogin} className="w-full bg-transparent text-primary border border-gray-700 rounded-full py-2 px-4 font-bold hover:bg-primary/10">
+                Sign in
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="absolute bottom-0 left-0 right-0 p-4 text-center text-xs text-gray-500">
+      <footer className="mt-auto p-4 text-center text-xs text-gray-500">
         <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-2">
           <a href="#" className="hover:underline">About</a>
           <a href="#" className="hover:underline">Download the ConnectX app</a>
@@ -83,5 +91,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
