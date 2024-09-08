@@ -5,8 +5,17 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, ProfileSerializer
+from .models import Profile
 
+
+class ProfileView(generics.RetrieveAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        user = self.request.user
+        return Profile.objects.get(user=user)
 
 
 class CreateUserView(generics.CreateAPIView):

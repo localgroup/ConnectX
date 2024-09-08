@@ -54,7 +54,7 @@ const TrendingTopic = ({ topic, posts }) => (
   </div>
 );
 
-export default function HomeView() {
+export default function HomeView({username}) {
   const posts = [
     { username: "John Doe", handle: "johndoe", content: "Just had an amazing breakthrough with my latest project! #coding #success", likes: 45, comments: 12, reposts: 8 },
     { username: "Jane Smith", handle: "janesmith", content: "Beautiful day for a hike! Nature always inspires me. 🏞️ #outdoors #inspiration", likes: 72, comments: 18, reposts: 5 },
@@ -93,7 +93,7 @@ export default function HomeView() {
             <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-10 h-10 rounded-full" />
             <div className="hidden xl:block">
               <h3 className="font-bold">Your Name</h3>
-              <p className="text-gray-500">@yourhandle</p>
+              <p className="text-gray-500">@{username}</p>
             </div>
           </div>
         </aside>
