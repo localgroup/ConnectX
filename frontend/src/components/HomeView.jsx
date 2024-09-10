@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brackets, X, Home, Bell, Mail, User, Search, MoreHorizontal, MessageCircle, Repeat2, Heart, Share } from 'lucide-react';
+import api from "../api";
 
 const ConnectXLogo = () => (
   <div className="relative w-12 h-12">
@@ -54,24 +55,39 @@ const TrendingTopic = ({ topic, posts }) => (
   </div>
 );
 
-export default function HomeView({username}) {
+export default function HomeView() {
+
+  const [user, setUser] = useState(null);  // Set initial state as null to handle loading
+
+  useEffect(() => {
+      getProfile();
+  }, []);
+
+  function getProfile() {
+      api
+        .get('/api/user/profile/')
+        .then((res) => {
+          console.log(res.data); 
+          setUser(res.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+
   const posts = [
     { username: "John Doe", handle: "johndoe", content: "Just had an amazing breakthrough with my latest project! #coding #success", likes: 45, comments: 12, reposts: 8 },
-    { username: "Jane Smith", handle: "janesmith", content: "Beautiful day for a hike! Nature always inspires me. 🏞️ #outdoors #inspiration", likes: 72, comments: 18, reposts: 5 },
-    { username: "Tech Enthusiast", handle: "techenthusiast", content: "The future of AI is both exciting and challenging. What are your thoughts on its ethical implications? #AI #technology", likes: 103, comments: 57, reposts: 24 },
   ];
 
   const trendingTopics = [
     { topic: "#coding", posts: "12.5K" },
-    { topic: "AI Ethics", posts: "8.3K" },
-    { topic: "#naturelovers", posts: "5.7K" },
   ];
 
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto flex">
         {/* Left Sidebar */}
-        <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-4">
+        <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-6">
           <div>
             <ConnectXLogo />
             <nav className="mt-8 space-y-4">
@@ -92,8 +108,14 @@ export default function HomeView({username}) {
           <div className="mb-4 flex items-center space-x-3">
             <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-10 h-10 rounded-full" />
             <div className="hidden xl:block">
-              <h3 className="font-bold">Your Name</h3>
-              <p className="text-gray-500">@{username}</p>
+              {user ? (
+                <>
+                  <h3 className="font-bold">{user.username}</h3>
+                  <p className="text-gray-500">@{user.username}</p>
+                </>
+              ) : (
+                <p>Loading user...</p>
+              )}
             </div>
           </div>
         </aside>

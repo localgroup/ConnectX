@@ -15,7 +15,8 @@ class ProfileView(generics.RetrieveAPIView):
 
     def get_object(self):
         user = self.request.user
-        return Profile.objects.get(user=user)
+        profile, created = Profile.objects.get_or_create(user=user)
+        return profile
 
 
 class CreateUserView(generics.CreateAPIView):
