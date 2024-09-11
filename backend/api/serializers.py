@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile
+from .models import Profile, User
 
 class ProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', read_only=True)
@@ -9,13 +9,16 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'email', 'first_name', 'last_name', 'username']
+        fields = ['id', 'first_name', 'last_name', 'username']
         
 
 class UserSerializer(serializers.ModelSerializer):
+    # Include email from the Profile model
+    profile = ProfileSerializer(source='profile', read_only=True)
+    
     class Meta:
         model = User
-        fields = ["id", "email", "first_name", "last_name", "username", "password"]
+        fields = ["id", "email", "username", "password", "profile"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def validate_email(self, value):
@@ -29,8 +32,10 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         
-        # Create a profile for the user if not exists
-        if not Profile.objects.filter(user=user).exists():
-            Profile.objects.create(user=user)
+        # Create or update the profile for the user
+        profile, created = Profile.objects.get_or_create(user=user)
+        if created:
+            profile.email = user.email
+            profile.save()
         
         return user

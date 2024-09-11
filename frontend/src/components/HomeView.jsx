@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Brackets, X, Home, Bell, Mail, User, Search, MoreHorizontal, MessageCircle, Repeat2, Heart, Share } from 'lucide-react';
 import api from "../api";
+import { Link as RouterLink } from 'react-router-dom';
+
 
 const ConnectXLogo = () => (
   <div className="relative w-12 h-12">
@@ -9,11 +11,11 @@ const ConnectXLogo = () => (
   </div>
 );
 
-const NavItem = ({ Icon, text }) => (
-  <a href="#" className="flex items-center space-x-4 p-3 hover:bg-gray-800 rounded-full">
+const NavItem = ({ Icon, text, to }) => (
+  <RouterLink to={to} className="flex items-center space-x-4 p-3 hover:bg-gray-800 rounded-full">
     <Icon className="h-7 w-7" />
     <span className="text-xl hidden xl:inline">{text}</span>
-  </a>
+  </RouterLink>
 );
 
 const Post = ({ username, handle, content, likes, comments, reposts }) => (
@@ -67,7 +69,7 @@ export default function HomeView() {
       api
         .get('/api/user/profile/')
         .then((res) => {
-          console.log(res.data); 
+          console.log(res.data);
           setUser(res.data);
         })
         .catch((error) => {
@@ -85,9 +87,9 @@ export default function HomeView() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto flex">
+      <div className="max-w-screen-xl mx-auto flex">
         {/* Left Sidebar */}
-        <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-6">
+        <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-6 pl-12">
           <div>
             <ConnectXLogo />
             <nav className="mt-8 space-y-4">
@@ -95,7 +97,7 @@ export default function HomeView() {
               <NavItem Icon={Search} text="Explore" />
               <NavItem Icon={Bell} text="Notifications" />
               <NavItem Icon={Mail} text="Messages" />
-              <NavItem Icon={User} text="Profile" />
+              <NavItem Icon={User} text="Profile" to="/user/profile/" />
               <NavItem Icon={MoreHorizontal} text="More" />
             </nav>
             <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
@@ -110,7 +112,7 @@ export default function HomeView() {
             <div className="hidden xl:block">
               {user ? (
                 <>
-                  <h3 className="font-bold">{user.username}</h3>
+                  <h3 className="font-bold">{user.first_name + " " + user.last_name}</h3>
                   <p className="text-gray-500">@{user.username}</p>
                 </>
               ) : (
@@ -121,7 +123,7 @@ export default function HomeView() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 border-x border-gray-800 max-w-2xl">
+        <main className="flex-1 border-x border-gray-800">
           <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800">
             <h1 className="text-xl font-bold">Home</h1>
           </header>

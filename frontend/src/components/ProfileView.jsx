@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brackets, X, Home, Bell, Mail, User, Search, MoreHorizontal, MessageCircle, Repeat2, Heart, Share, ArrowLeft, MapPin, Calendar, Link } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import api from "../api";
-
+import { Link as RouterLink } from 'react-router-dom';
 
 const ConnectXLogo = () => (
   <div className="relative w-12 h-12">
@@ -11,11 +10,11 @@ const ConnectXLogo = () => (
   </div>
 );
 
-const NavItem = ({ Icon, text }) => (
-  <a href="#" className="flex items-center space-x-4 p-3 hover:bg-gray-800 rounded-full">
+const NavItem = ({ Icon, text, to }) => (
+  <RouterLink to={to} className="flex items-center space-x-4 p-3 hover:bg-gray-800 rounded-full">
     <Icon className="h-7 w-7" />
     <span className="text-xl hidden xl:inline">{text}</span>
-  </a>
+  </RouterLink>
 );
 
 const Post = ({ username, handle, content, likes, comments, reposts }) => (
@@ -50,35 +49,41 @@ const Post = ({ username, handle, content, likes, comments, reposts }) => (
   </div>
 );
 
+const TrendingTopic = ({ topic, posts }) => (
+  <div className="p-3 hover:bg-gray-800 transition duration-200">
+    <h4 className="font-bold">{topic}</h4>
+    <p className="text-gray-500 text-sm">{posts} posts</p>
+  </div>
+);
 
 export default function ProfileView() {
 
-    const [user, setUser] = useState({});
-    const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        getProfile();
-    }, []);
+  useEffect(() => {
+      getProfile();
+  }, []);
 
-    function getProfile() {
-        api
-          .get('/api/user/profile/')
-          .then((res) => {
-            setUser(res.data);
-            setLoading(false);
-          })
-          .catch((error) => {
-            console.error(error);
-            setLoading(false);
-          });
-      }
-    
-      if (loading) {
-        return <div>Loading...</div>;
-      }
+  function getProfile() {
+      api
+        .get('/api/user/profile/')
+        .then((res) => {
+          setUser(res.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setLoading(false);
+        });
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const userProfile = {
-    name: user.username,
+    name: user.first_name + " " + user.last_name,
     handle: user.username,
     bio: "Software engineer | Open source enthusiast | Coffee lover",
     location: "San Francisco, CA",
@@ -96,15 +101,19 @@ export default function ProfileView() {
     { username: userProfile.name, handle: userProfile.handle, content: "Coffee break ☕ - the perfect time to brainstorm new ideas. What's your go-to drink for productivity?", likes: 56, comments: 17, reposts: 3 },
   ];
 
+  const trendingTopics = [
+    { topic: "#coding", posts: "12.5K" },
+  ];
+
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto flex">
+      <div className="max-w-screen-xl mx-auto flex">
         {/* Left Sidebar */}
-        <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-4">
+        <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-6 pl-12">
           <div>
             <ConnectXLogo />
             <nav className="mt-8 space-y-4">
-              <NavItem Icon={Home} text="Home" />
+              <NavItem Icon={Home} text="Home" to="/home/" />
               <NavItem Icon={Search} text="Explore" />
               <NavItem Icon={Bell} text="Notifications" />
               <NavItem Icon={Mail} text="Messages" />
@@ -128,7 +137,7 @@ export default function ProfileView() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 border-x border-gray-800 max-w-2xl">
+        <main className="flex-1 border-x border-gray-800">
           <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800 flex items-center space-x-4">
             <button className="rounded-full p-2 hover:bg-gray-800">
               <ArrowLeft className="h-5 w-5" />
@@ -166,18 +175,18 @@ export default function ProfileView() {
                   Joined {userProfile.joinDate}
                 </span>
               </div>
-              <div className="flex mt-3 space-x-4">
-                <span><strong>{userProfile.following}</strong> <span className="text-gray-500">Following</span></span>
-                <span><strong>{userProfile.followers}</strong> <span className="text-gray-500">Followers</span></span>
+              <div className="flex mt-4">
+                <div className="flex-1 text-center">
+                  <h3 className="text-lg font-bold">{userProfile.following}</h3>
+                  <p className="text-gray-500">Following</p>
+                </div>
+                <div className="flex-1 text-center">
+                  <h3 className="text-lg font-bold">{userProfile.followers}</h3>
+                  <p className="text-gray-500">Followers</p>
+                </div>
               </div>
             </div>
-            <nav className="flex border-b border-gray-800 mt-4">
-              <a href="#" className="flex-1 text-center py-4 hover:bg-gray-900 border-b-2 border-primary font-bold">Posts</a>
-              <a href="#" className="flex-1 text-center py-4 hover:bg-gray-900 text-gray-500">Replies</a>
-              <a href="#" className="flex-1 text-center py-4 hover:bg-gray-900 text-gray-500">Media</a>
-              <a href="#" className="flex-1 text-center py-4 hover:bg-gray-900 text-gray-500">Likes</a>
-            </nav>
-            <div>
+            <div className="mt-8">
               {posts.map((post, index) => (
                 <Post key={index} {...post} />
               ))}
@@ -187,12 +196,20 @@ export default function ProfileView() {
 
         {/* Right Sidebar */}
         <aside className="w-80 h-screen sticky top-0 p-4 hidden lg:block">
+          <div className="bg-gray-900 rounded-2xl p-4 mb-4">
+            <h2 className="text-xl font-bold mb-4">What's happening</h2>
+            {trendingTopics.map((topic, index) => (
+              <TrendingTopic key={index} {...topic} />
+            ))}
+            <a href="#" className="text-primary hover:underline block mt-4">Show more</a>
+          </div>
           <div className="bg-gray-900 rounded-2xl p-4">
             <h2 className="text-xl font-bold mb-4">Who to follow</h2>
             {/* Add suggested follows here */}
             <a href="#" className="text-primary hover:underline block mt-4">Show more</a>
           </div>
         </aside>
+
       </div>
     </div>
   );
