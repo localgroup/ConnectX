@@ -44,25 +44,26 @@ export default function LoginView({route, method}) {
     e.preventDefault();
     const formErrors = validateForm();
     if (Object.keys(formErrors).length === 0) {
-      console.log('Form submitted', formData);
-      try {
-        const res = await api.post(route, { username: formData.username, password: formData.password });
-        if (method === "login") {
-            localStorage.setItem(ACCESS_TOKEN, res.data.access);
-            localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-            navigate("/home")
-            window.location.reload()
-        } else {
-            navigate("/login")
-            window.location.reload()
+        try {
+            const res = await api.post(route, { username: formData.username, password: formData.password });
+            if (method === "login") {
+                localStorage.setItem(ACCESS_TOKEN, res.data.access);
+                localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+                localStorage.setItem('username', formData.username);  // Save username
+                navigate("/home");
+                window.location.reload();
+            } else {
+                navigate("/login");
+                window.location.reload();
+            }
+        } catch (error) {
+            alert(error);
         }
-    } catch (error) {
-        alert(error)
-    }
     } else {
-      setErrors(formErrors);
+        setErrors(formErrors);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">

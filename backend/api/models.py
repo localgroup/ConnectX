@@ -9,10 +9,15 @@ from django.dispatch import receiver
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email = models.EmailField(max_length=200) 
+    email = models.EmailField(max_length=200)
+    username = models.CharField(max_length=150, blank=True)
 
     def __str__(self):
         return f"{self.user.username} ({self.email})"
+
+    def save(self, *args, **kwargs):
+        self.username = self.user.username 
+        super().save(*args, **kwargs)
     
 
 @receiver(post_save, sender=User)

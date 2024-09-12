@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,12 +11,12 @@ from .models import Profile
 
 class ProfileView(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    lookup_url_kwarg = 'username'
 
     def get_object(self):
-        user = self.request.user
-        profile, created = Profile.objects.get_or_create(user=user)
-        return profile
+        username = self.kwargs.get(self.lookup_url_kwarg)
+        user = get_object_or_404(User, username=username)
+        return user.profile
 
 
 class CreateUserView(generics.CreateAPIView):

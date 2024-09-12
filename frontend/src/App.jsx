@@ -29,7 +29,7 @@ function App() {
               <ProtectedRoute>
                 <Home />
               </ProtectedRoute> />
-            <Route path="/user/profile/" element=
+            <Route path="/:username" element=
               <ProtectedRoute>
                 <Profile />
               </ProtectedRoute> />

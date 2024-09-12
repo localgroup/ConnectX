@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { X, Home, Bell, Mail, User, Search, MoreHorizontal, MessageCircle, Repeat2, Heart, Share } from 'lucide-react';
-import api from "../api";
+import React from 'react';
+import { X, Home, Bell, Mail, User, Search, MoreHorizontal } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
+import useProfile from '../hooks/useProfile';
 
 
 const TrendingTopic = ({ topic, posts }) => (
@@ -15,23 +15,40 @@ const TrendingTopic = ({ topic, posts }) => (
 
 export default function HomeView() {
 
-  const [user, setUser] = useState(null);  // Set initial state as null to handle loading
+    const username = localStorage.getItem('username');
+    const { profile, loading, error } = useProfile(username);
 
-  useEffect(() => {
-      getProfile();
-  }, []);
+    if (loading) return <div>Loading...</div>;
 
-  function getProfile() {
-      api
-        .get('/api/user/profile/')
-        .then((res) => {
-          console.log(res.data);
-          setUser(res.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
+    // const [user, setUser] = useState(null);
+    // const [loading, setLoading] = useState(true);
+
+    // useEffect(() => {
+    //     const username = localStorage.getItem('username');
+    //     if (username) {
+    //         getProfile(username);
+    //     } else {
+    //         console.error("No username found in local storage");
+    //         setLoading(false);
+    //     }
+    // }, []);
+
+    // function getProfile(username) {
+    //     api
+    //         .get(`/api/${username}/`)
+    //         .then((res) => {
+    //             setUser(res.data);
+    //             setLoading(false);
+    //         })
+    //         .catch((error) => {
+    //             console.error(error);
+    //             setLoading(false);
+    //         });
+    // }
+
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    // };
 
   const posts = [
     { username: "John Doe", handle: "johndoe", content: "Just had an amazing breakthrough with my latest project! #coding #success", likes: 45, comments: 12, reposts: 8 },
@@ -53,7 +70,7 @@ export default function HomeView() {
               <NavItem Icon={Search} text="Explore" />
               <NavItem Icon={Bell} text="Notifications" />
               <NavItem Icon={Mail} text="Messages" />
-              <NavItem Icon={User} text="Profile" to="/user/profile/" />
+              <NavItem Icon={User} text="Profile" to={`/${profile.username}`} />
               <NavItem Icon={MoreHorizontal} text="More" />
             </nav>
             <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
@@ -64,12 +81,12 @@ export default function HomeView() {
             </button>
           </div>
           <div className="mb-4 flex items-center space-x-3">
-            <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-10 h-10 rounded-full" />
+          <img src={profile.avatar || '/placeholder.svg?height=150&width=150'} alt="Profile" className="w-10 h-10 rounded-full" />
             <div className="hidden xl:block">
-              {user ? (
+              {profile ? (
                 <>
-                  <h3 className="font-bold">{user.first_name + " " + user.last_name}</h3>
-                  <p className="text-gray-500">@{user.username}</p>
+                  <h3 className="font-bold">{profile.first_name + " " + profile.last_name}</h3>
+                  <p className="text-gray-500">@{profile.username}</p>
                 </>
               ) : (
                 <p>Loading user...</p>

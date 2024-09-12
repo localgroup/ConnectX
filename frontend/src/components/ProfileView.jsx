@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { X, Home, Bell, Mail, User, Search, MoreHorizontal, ArrowLeft, MapPin, Calendar, Link } from 'lucide-react';
-import api from "../api";
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
+import useProfile from '../hooks/useProfile';
+import { useParams } from 'react-router-dom';
 
 
 const TrendingTopic = ({ topic, posts }) => (
@@ -15,41 +16,52 @@ const TrendingTopic = ({ topic, posts }) => (
 
 export default function ProfileView() {
 
-  const [user, setUser] = useState({});
-  const [loading, setLoading] = useState(true);
+    const { username } = useParams();
+    const { profile, loading, error } = useProfile(username);
 
-  useEffect(() => {
-      getProfile();
-  }, []);
+    if (loading) return <div>Loading...</div>;
 
-  function getProfile() {
-      api
-        .get('/api/user/profile/')
-        .then((res) => {
-          setUser(res.data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setLoading(false);
-        });
-  }
+    // const [user, setUser] = useState(null);
+    // const [loading, setLoading] = useState(true);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    // useEffect(() => {
+    //     const username = localStorage.getItem('username');
+    //     if (username) {
+    //         getProfile(username);
+    //     } else {
+    //         console.error("No username found in local storage");
+    //         setLoading(false);
+    //     }
+    // }, []);
+
+    // function getProfile(username) {
+    //     api
+    //         .get(`/api/${username}/`)
+    //         .then((res) => {
+    //             setUser(res.data);
+    //             setLoading(false);
+    //         })
+    //         .catch((error) => {
+    //             console.error(error);
+    //             setLoading(false);
+    //         });
+    // }
+
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    // };
 
   const userProfile = {
-    name: user.first_name + " " + user.last_name,
-    handle: user.username,
+    name: profile.first_name + " " + profile.last_name,
+    handle: profile.username,
     bio: "Software engineer | Open source enthusiast | Coffee lover",
     location: "San Francisco, CA",
     website: "https://janedoe.com",
     joinDate: "September 2020",
     following: 456,
     followers: 1234,
-    coverImage: "/placeholder.svg?height=200&width=600",
-    avatar: "/placeholder.svg?height=150&width=150",
+    coverImage: profile.coverimage || "/placeholder.svg?height=200&width=600",
+    avatar: profile.avatar || '/placeholder.svg?height=150&width=150',
   };
 
   const posts = [
@@ -74,7 +86,7 @@ export default function ProfileView() {
               <NavItem Icon={Search} text="Explore" />
               <NavItem Icon={Bell} text="Notifications" />
               <NavItem Icon={Mail} text="Messages" />
-              <NavItem Icon={User} text="Profile" />
+              <NavItem Icon={User} text="Profile" to={`/${profile.username}`} />
               <NavItem Icon={MoreHorizontal} text="More" />
             </nav>
             <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
