@@ -4,7 +4,7 @@ import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
 import useProfile from '../hooks/useProfile';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 
 const TrendingTopic = ({ topic, posts }) => (
@@ -16,8 +16,9 @@ const TrendingTopic = ({ topic, posts }) => (
 
 export default function ProfileView() {
 
+    const navigate = useNavigate();  
     const { username } = useParams();
-    const { profile, loading, error } = useProfile(username);
+    const { profile, loading } = useProfile(username);
 
     if (loading) return <div>Loading...</div>;
 
@@ -43,6 +44,10 @@ export default function ProfileView() {
     const trendingTopics = [
       { topic: "#coding", posts: "12.5K" },
     ];
+
+    const handleEditProfile = () => {
+      navigate(`/${profile.username}/update-profile/`);
+    };
 
     return (
       <div className="min-h-screen bg-black text-white">
@@ -93,7 +98,7 @@ export default function ProfileView() {
               </div>
               <div className="mt-20 px-4">
                 <div className="flex justify-end mb-4">
-                  <button className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-gray-900">
+                  <button onClick={handleEditProfile} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-gray-900">
                     Edit profile
                   </button>
                 </div>

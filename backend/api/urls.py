@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.WelcomeView.as_view(), name='welcome'),
     path('home/', views.HomeView.as_view(), name='home'),
     path('<str:username>/', views.ProfileView.as_view()),
+    path('<str:username>/update-profile/', views.UpdateProfileView.as_view(), name='update-profile'),
 ]

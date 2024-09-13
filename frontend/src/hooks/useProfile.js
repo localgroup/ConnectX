@@ -3,31 +3,31 @@ import api from '../api';
 
 
 export default function useProfile (username) {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!username) {
-      setError('Username is required');
-      setLoading(false);
-      return;
-    }
-
-    const getProfile = async () => {
-      try {
-        const response = await api.get(`/api/${username}/`);
-        setProfile(response.data);
+    useEffect(() => {
+      if (!username) {
+        setError('Username is required');
         setLoading(false);
-      } catch (err) {
-        setError(err);
-        setLoading(false);
+        return;
       }
-    };
 
-    getProfile();
-  }, [username]);
+      const getProfile = async () => {
+        try {
+          const response = await api.get(`/api/${username}/`);
+          setProfile(response.data);
+          setLoading(false);
+        } catch (err) {
+          setError(err);
+          setLoading(false);
+        }
+      };
 
-  return { profile, loading, error };
-};
+      getProfile();
+    }, [username]);
+
+    return { profile, loading, error };
+  };
 

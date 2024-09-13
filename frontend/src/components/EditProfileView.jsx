@@ -1,44 +1,57 @@
-import React, { useState } from 'react';
-import { Network, X, Home, Bell, Mail, User, Search, MoreHorizontal, ArrowLeft, Camera } from 'lucide-react';
-
-const ConnectXLogo = () => (
-  <div className="relative w-12 h-12">
-    <Network className="w-12 h-12 text-primary absolute" />
-    <X className="w-10 h-10 text-primary absolute top-1 left-1" />
-  </div>
-);
-
-const NavItem = ({ Icon, text }) => (
-  <a href="#" className="flex items-center space-x-4 p-3 hover:bg-gray-800 rounded-full">
-    <Icon className="h-7 w-7" />
-    <span className="text-xl hidden xl:inline">{text}</span>
-  </a>
-);
+import React, { useState, useEffect } from 'react';
+import { X, Home, Bell, Mail, User, Search, MoreHorizontal, ArrowLeft, Camera } from 'lucide-react';
+import ConnectXLogo from './ConnectXLogo';
+import NavItem from './NavItem';
+import useProfile from '../hooks/useProfile';
+import useUpdateProfile from '../hooks/useUpdateProfile'; // Custom hook to fetch profile
 
 export default function EditProfileView() {
-  const [profile, setProfile] = useState({
-    name: "Jane Doe",
-    handle: "janedoe",
-    bio: "Software engineer | Open source enthusiast | Coffee lover",
-    location: "San Francisco, CA",
-    website: "https://janedoe.com",
-    birthDate: "1990-01-01",
-    coverImage: "/placeholder.svg?height=200&width=600",
-    avatar: "/placeholder.svg?height=150&width=150",
+  const { profile } = useProfile();
+  const { updateProfile } = useUpdateProfile();
+  const [formData, setFormData] = useState({
+    name: "",
+    handle: "",
+    bio: "",
+    location: "",
+    website: "",
+    birthDate: "",
+    coverImage: "",
+    avatar: ""
   });
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.first_name + " " + profile.last_name,
+        handle: profile.username,
+        bio: profile.bio || "",
+        location: profile.location || "",
+        website: profile.website || "",
+        birthDate: profile.birth_date || "",
+        coverImage: profile.cover_image || "",
+        avatar: profile.avatar || ""
+      });
+    }
+  }, [profile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile(prevProfile => ({
-      ...prevProfile,
+    setFormData(prevData => ({
+      ...prevData,
       [name]: value
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Updated profile:', profile);
-    // Here you would typically send the updated profile to your backend
+    try {
+      const updatedProfile = await updateProfile(profile.username, formData);
+      console.log("Profile updated successfully:", updatedProfile);
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile.");
+    }
   };
 
   return (
@@ -64,10 +77,10 @@ export default function EditProfileView() {
             </button>
           </div>
           <div className="mb-4 flex items-center space-x-3">
-            <img src={profile.avatar} alt="Profile" className="w-10 h-10 rounded-full" />
+            <img src={formData.avatar} alt="Profile" className="w-10 h-10 rounded-full" />
             <div className="hidden xl:block">
-              <h3 className="font-bold">{profile.name}</h3>
-              <p className="text-gray-500">@{profile.handle}</p>
+              <h3 className="font-bold">{formData.name}</h3>
+              <p className="text-gray-500">@{formData.handle}</p>
             </div>
           </div>
         </aside>
@@ -90,14 +103,14 @@ export default function EditProfileView() {
           </header>
           <form onSubmit={handleSubmit} className="p-4">
             <div className="relative mb-6">
-              <img src={profile.coverImage} alt="Cover" className="w-full h-48 object-cover" />
+              <img src={formData.coverImage} alt="Cover" className="w-full h-48 object-cover" />
               <label htmlFor="coverImage" className="absolute top-2 right-2 bg-black bg-opacity-60 rounded-full p-2 cursor-pointer">
                 <Camera className="h-5 w-5" />
                 <input type="file" id="coverImage" className="hidden" />
               </label>
             </div>
             <div className="relative mb-6">
-              <img src={profile.avatar} alt={profile.name} className="w-32 h-32 rounded-full border-4 border-black absolute -top-16 left-4" />
+              <img src={formData.avatar} alt={formData.name} className="w-32 h-32 rounded-full border-4 border-black absolute -top-16 left-4" />
               <label htmlFor="avatar" className="absolute top-0 left-24 bg-black bg-opacity-60 rounded-full p-2 cursor-pointer">
                 <Camera className="h-5 w-5" />
                 <input type="file" id="avatar" className="hidden" />
@@ -110,7 +123,7 @@ export default function EditProfileView() {
                   type="text"
                   id="name"
                   name="name"
-                  value={profile.name}
+                  value={formData.name}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 />
@@ -121,7 +134,7 @@ export default function EditProfileView() {
                   type="text"
                   id="handle"
                   name="handle"
-                  value={profile.handle}
+                  value={formData.handle}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 />
@@ -132,7 +145,7 @@ export default function EditProfileView() {
                   id="bio"
                   name="bio"
                   rows="3"
-                  value={profile.bio}
+                  value={formData.bio}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 ></textarea>
@@ -143,7 +156,7 @@ export default function EditProfileView() {
                   type="text"
                   id="location"
                   name="location"
-                  value={profile.location}
+                  value={formData.location}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 />
@@ -154,7 +167,7 @@ export default function EditProfileView() {
                   type="url"
                   id="website"
                   name="website"
-                  value={profile.website}
+                  value={formData.website}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 />
@@ -165,7 +178,7 @@ export default function EditProfileView() {
                   type="date"
                   id="birthDate"
                   name="birthDate"
-                  value={profile.birthDate}
+                  value={formData.birthDate}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 />
@@ -190,4 +203,3 @@ export default function EditProfileView() {
     </div>
   );
 }
-

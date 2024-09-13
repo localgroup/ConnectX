@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Profile, User
 
+
 class ProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', read_only=True)
     last_name = serializers.CharField(source='user.last_name', read_only=True)
@@ -9,11 +10,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'first_name', 'last_name', 'username']
-        
+        fields = [
+            'first_name', 'last_name', 'username', 'bio', 
+            'location', 'website', 'birth_date', 'cover_image', 'avatar'
+        ]
+        read_only_fields = ['username']
+
+    def update(self, instance, validated_data):
+        # Handle updates for fields that belong to the profile
+        profile_fields = ['bio', 'location', 'website', 'birth_date', 'cover_image', 'avatar']
+        for field in profile_fields:
+            setattr(instance, field, validated_data.get(field, getattr(instance, field)))
+        instance.save()
+        return instance
+
 
 class UserSerializer(serializers.ModelSerializer):
-    # Include email from the Profile model
     profile = ProfileSerializer(source='profile', read_only=True)
     
     class Meta:

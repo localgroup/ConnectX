@@ -1,5 +1,6 @@
+# views.py
 from django.shortcuts import get_object_or_404, render
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -11,12 +12,29 @@ from .models import Profile
 
 class ProfileView(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
     lookup_url_kwarg = 'username'
 
     def get_object(self):
         username = self.kwargs.get(self.lookup_url_kwarg)
         user = get_object_or_404(User, username=username)
         return user.profile
+
+
+class UpdateProfileView(generics.UpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'user__username'  # You want to look up by the user's username
+
+    def get_object(self):
+        username = self.kwargs.get('username')
+        user = get_object_or_404(User, username=username)
+        # Only allow the logged-in user to update their own profile
+        if self.request.user == user:
+            return user.profile
+        else:
+            raise permissions.PermissionDenied("You do not have permission to update this profile.")
 
 
 class CreateUserView(generics.CreateAPIView):

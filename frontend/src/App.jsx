@@ -6,7 +6,8 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import './index.css';
-import ProtectedRoute from "./components/ProtectedRoute"
+import ProtectedRoute from "./components/ProtectedRoute";
+import EditProfile from "./pages/EditProfile";
 
 
 function Logout() {
@@ -28,11 +29,20 @@ function App() {
             <Route path="/home" element=
               <ProtectedRoute>
                 <Home />
-              </ProtectedRoute> />
+              </ProtectedRoute> 
+            />
             <Route path="/:username" element=
               <ProtectedRoute>
                 <Profile />
-              </ProtectedRoute> />
+              </ProtectedRoute> 
+            />
+            <Route path="/:username/update-profile/" element=
+              <ProtectedRoute>
+                <EditProfile />
+              </ProtectedRoute> 
+            />
+
+            
           </Routes>
           
         </BrowserRouter>
