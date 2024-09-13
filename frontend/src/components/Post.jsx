@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { MessageCircle, Repeat2, Heart, Share } from 'lucide-react';
 
 
-export default function Post ({ username, handle, content, likes, comments, reposts }) {
+export default function Post ({ avatar, username, handle, content, likes, comments, reposts }) {
 
     return (
         <div className="border-b border-gray-800 p-4 hover:bg-gray-900 transition duration-200">
       <div className="flex space-x-3">
-        <img src="/placeholder.svg?height=48&width=48" alt={username} className="w-12 h-12 rounded-full" />
+        <img src={avatar} alt={username} className="w-12 h-12 rounded-full" />
         <div className="flex-1">
           <div className="flex items-center space-x-2">
             <h3 className="font-bold">{username}</h3>

@@ -22,16 +22,14 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.username = self.user.username
+        self.first_name = self.user.first_name
+        self.last_name = self.user.last_name
+        self.email = self.user.email
         super().save(*args, **kwargs)
-    
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
-        if not Profile.objects.filter(user=instance).exists():
-            Profile.objects.create(user=instance)
-            
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+        Profile.objects.create(user=instance)
+    else:
+        instance.profile.save()

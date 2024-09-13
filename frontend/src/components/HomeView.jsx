@@ -16,7 +16,7 @@ const TrendingTopic = ({ topic, posts }) => (
 export default function HomeView() {
 
     const username = localStorage.getItem('username');
-    const { profile, loading, error } = useProfile(username);
+    const { profile, loading } = useProfile(username);
 
     if (loading) return <div>Loading...</div>;
 
@@ -72,7 +72,7 @@ export default function HomeView() {
             </header>
             <div className="p-4 border-b border-gray-800">
               <div className="flex space-x-4">
-                <img src="/placeholder.svg?height=48&width=48" alt="Your Avatar" className="w-12 h-12 rounded-full" />
+                <img src={profile.avatar} alt={profile.username} className="w-12 h-12 rounded-full" />
                 <div className="flex-1">
                   <textarea 
                     className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none" 

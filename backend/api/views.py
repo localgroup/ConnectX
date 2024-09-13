@@ -31,34 +31,17 @@ class UpdateProfileView(generics.UpdateAPIView):
     def get_object(self):
         username = self.kwargs.get(self.lookup_url_kwarg)
         user = get_object_or_404(User, username=username)
-        # Only allow the logged-in user to update their own profile
-        if self.request.user == user:
-            return user.profile
-        else:
+        if self.request.user != user:
             raise permissions.PermissionDenied("You do not have permission to update this profile.")
+        return user.profile
 
     def update(self, request, *args, **kwargs):
-        profile = self.get_object()
-        user = profile.user
-
-        # Update User model fields
-        first_name = request.data.get('first_name')
-        last_name = request.data.get('last_name')
-
-        if first_name:
-            user.first_name = first_name
-        if last_name:
-            user.last_name = last_name
-        
-        # Save the User model changes
-        user.save()
-
-        # Update Profile model fields
-        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
 
 
 class CreateUserView(generics.CreateAPIView):

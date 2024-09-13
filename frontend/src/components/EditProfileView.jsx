@@ -4,9 +4,10 @@ import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import useProfile from '../hooks/useProfile.js';
 import useUpdateProfile from '../hooks/useUpdateProfile.js'; 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function EditProfileView() {
+  const navigate = useNavigate();
   const { username } = useParams();
   const { profile } = useProfile(username);
   const { updateProfile } = useUpdateProfile();
@@ -59,28 +60,25 @@ export default function EditProfileView() {
     e.preventDefault();
     const form = new FormData();
     
-    form.append('first_name', formData.first_name);
-    form.append('last_name', formData.last_name);
-    form.append('username', formData.username);
-    form.append('bio', formData.bio);
-    form.append('location', formData.location);
-    form.append('website', formData.website);
-    form.append('birth_date', formData.birth_date);
-
-    if (formData.cover_image) {
-      form.append('cover_image', formData.cover_image);
-    }
-    if (formData.avatar) {
-      form.append('avatar', formData.avatar);
-    }
+    Object.keys(formData).forEach(key => {
+      if (formData[key] !== profile[key]) {
+        if (formData[key] instanceof File) {
+          form.append(key, formData[key]);
+        } else if (formData[key] !== null && formData[key] !== "") {
+          form.append(key, formData[key]);
+        }
+      }
+    });
 
     try {
       const updatedProfile = await updateProfile(profile.username, form);
       console.log("Profile updated successfully:", updatedProfile);
       alert("Profile updated successfully!");
+      // Redirect to the profile page
+      navigate(`/${username}/`);
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
+      console.error("Error updating profile:", error.response?.data || error.message);
+      alert(`Failed to update profile: ${error.response?.data?.detail || error.message}`);
     }
   };
 
