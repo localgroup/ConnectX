@@ -19,20 +19,22 @@ export default function ProfileView() {
     const navigate = useNavigate();  
     const { username } = useParams();
     const { profile, loading } = useProfile(username);
+    
 
     if (loading) return <div>Loading...</div>;
 
     const userProfile = {
       name: profile.first_name + " " + profile.last_name,
       handle: profile.username,
-      bio: "Software engineer | Open source enthusiast | Coffee lover",
-      location: "San Francisco, CA",
-      website: "https://janedoe.com",
+      bio: profile.bio || "",
+      location: profile.location || "",
+      website: profile.website || "",
+      birth_date: profile.birth_date || "",
+      coverImage: profile.cover_image || "/placeholder.svg?height=200&width=600",
+      avatar: profile.avatar || '/placeholder.svg?height=150&width=150',
       joinDate: "September 2020",
       following: 456,
       followers: 1234,
-      coverImage: profile.coverimage || "/placeholder.svg?height=200&width=600",
-      avatar: profile.avatar || '/placeholder.svg?height=150&width=150',
     };
 
     const posts = [

@@ -13,8 +13,8 @@ class Profile(models.Model):
     location = models.CharField(max_length=100, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
-    cover_image = models.ImageField(blank=True, null=True)
-    avatar = models.ImageField(blank=True, null=True)
+    cover_image = models.ImageField(upload_to='cover_images/', blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     email = models.EmailField(max_length=200, blank=True)
 
     def __str__(self):

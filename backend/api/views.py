@@ -24,17 +24,41 @@ class ProfileView(generics.RetrieveAPIView):
 class UpdateProfileView(generics.UpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    lookup_field = 'user__username'  # You want to look up by the user's username
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'user__username'
+    lookup_url_kwarg = 'username'
 
     def get_object(self):
-        username = self.kwargs.get('username')
+        username = self.kwargs.get(self.lookup_url_kwarg)
         user = get_object_or_404(User, username=username)
         # Only allow the logged-in user to update their own profile
         if self.request.user == user:
             return user.profile
         else:
             raise permissions.PermissionDenied("You do not have permission to update this profile.")
+
+    def update(self, request, *args, **kwargs):
+        profile = self.get_object()
+        user = profile.user
+
+        # Update User model fields
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+
+        if first_name:
+            user.first_name = first_name
+        if last_name:
+            user.last_name = last_name
+        
+        # Save the User model changes
+        user.save()
+
+        # Update Profile model fields
+        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CreateUserView(generics.CreateAPIView):
