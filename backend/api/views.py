@@ -1,5 +1,5 @@
 # views.py
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,6 +10,7 @@ from .serializers import UserSerializer, ProfileSerializer
 from .models import Profile
 
 
+# Retrieve user profile.
 class ProfileView(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -21,6 +22,7 @@ class ProfileView(generics.RetrieveAPIView):
         return user.profile
 
 
+# Update user profile.
 class UpdateProfileView(generics.UpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
@@ -35,15 +37,17 @@ class UpdateProfileView(generics.UpdateAPIView):
             raise permissions.PermissionDenied("You do not have permission to update this profile.")
         return user.profile
 
+    # Update the User and Profiel model.
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        partial = kwargs.pop('partial', False)  # Check if the data recieved is partially updated.
+        instance = self.get_object()    # Retrieve the model instance to update.
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)   # Serializer instance to update.
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        self.perform_update(serializer)   # Update the model.
         return Response(serializer.data)
 
 
+# Create a new user.
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer

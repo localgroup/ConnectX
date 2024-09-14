@@ -5,6 +5,7 @@ from django.dispatch import receiver
 
 
 class Profile(models.Model):
+    # Define profile fields.
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
@@ -20,13 +21,20 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username} ({self.email})"
 
+    # Save and sync the info with the User model.
     def save(self, *args, **kwargs):
         self.username = self.user.username
         self.first_name = self.user.first_name
         self.last_name = self.user.last_name
         self.email = self.user.email
         super().save(*args, **kwargs)
-
+        
+    @property
+    def date_joined(self):  # Get the date_joined from the User model.
+        return self.user.date_joined
+    
+    
+# Create or update the user.
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:

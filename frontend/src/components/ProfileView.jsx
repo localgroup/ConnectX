@@ -5,6 +5,7 @@ import NavItem from './NavItem';
 import Post from './Post';
 import useProfile from '../hooks/useProfile';
 import { useParams, useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 
 const TrendingTopic = ({ topic, posts }) => (
@@ -32,7 +33,7 @@ export default function ProfileView() {
       birth_date: profile.birth_date || "",
       coverImage: profile.cover_image || "/placeholder.svg?height=200&width=600",
       avatar: profile.avatar || '/placeholder.svg?height=150&width=150',
-      joinDate: "September 2020",
+      joinDate: profile.date_joined ? format(new Date(profile.date_joined), 'MMMM yyyy') : "",
       following: 456,
       followers: 1234,
     };
