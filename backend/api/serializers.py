@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile, User
+from .models import Profile, User, Post, Comment, Likes
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile   # Use the Profile model.
         fields = [
-            'first_name', 'last_name', 'username', 'email', 'bio', 'location', 'website', 'birth_date', 'cover_image', 'avatar', 'date_joined'
+            'first_name', 'last_name', 'username', 'email', 'bio', 'location', 'website', 'birth_date', 'cover_image', 'avatar', 'date_joined', 'timezone'
         ]
         read_only_fields = ['username', 'email', 'date_joined']
 
@@ -34,6 +34,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.save()   # Save the updated Profile.
 
         return instance
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -64,3 +65,53 @@ class UserSerializer(serializers.ModelSerializer):
             profile.save()
         
         return user
+    
+    
+class PostSerializer(serializers.ModelSerializer):
+    # Retrieve the related user info.
+    user = serializers.StringRelatedField(source='user.username', read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    # Including counts of likes and comments.
+    number_of_likes = serializers.SerializerMethodField()
+    number_of_comments = serializers.SerializerMethodField()
+
+    def get_number_of_likes(self, obj):
+        return obj.likes.count()
+
+    def get_number_of_comments(self, obj):
+        return obj.comments.count()
+
+    class Meta:
+        model = Post
+        fields = [
+            'id', 'user', 'content', 'created_at', 'updated_at',
+            'number_of_likes', 'number_of_comments'
+        ]
+        read_only_fields = ['user', 'created_at', 'updated_at', 'number_of_likes', 'number_of_comments']
+
+
+class LikesSerializer(serializers.ModelSerializer):
+    # Retrieve the full post details using PostSerializer.
+    post = PostSerializer(read_only=True)
+    user = serializers.StringRelatedField(source='user.username', read_only=True)
+
+    class Meta:
+        model = Likes
+        fields = ['id', 'post', 'user']
+        read_only_fields = ['post', 'user']
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    # Retrieve the full post details using PostSerializer.
+    post = PostSerializer(read_only=True)
+    user = serializers.StringRelatedField(source='user.username', read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'post', 'user', 'content', 'created_at', 'updated_at']
+        read_only_fields = ['post', 'user', 'created_at', 'updated_at']
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Home, Bell, Mail, User, Search, MoreHorizontal } from 'lucide-react';
+import { X, Home, Bell, Mail, User, Search, LogOutIcon } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
@@ -36,12 +36,12 @@ export default function HomeView() {
             <div>
               <ConnectXLogo />
               <nav className="mt-8 space-y-4">
-                <NavItem Icon={Home} text="Home" />
+                <NavItem Icon={Home} text="Home" to="/home/" />
                 <NavItem Icon={Search} text="Explore" />
                 <NavItem Icon={Bell} text="Notifications" />
                 <NavItem Icon={Mail} text="Messages" />
                 <NavItem Icon={User} text="Profile" to={`/${profile.username}`} />
-                <NavItem Icon={MoreHorizontal} text="More" />
+                <NavItem Icon={LogOutIcon} text="LogOut" to="/logout/" />
               </nav>
               <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
                 Post

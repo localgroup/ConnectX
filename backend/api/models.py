@@ -2,10 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
+import pytz
 
 
 class Profile(models.Model):
-    # Define profile fields.
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
@@ -17,27 +18,72 @@ class Profile(models.Model):
     cover_image = models.ImageField(upload_to='cover_images/', blank=True, null=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     email = models.EmailField(max_length=200, blank=True)
+    timezone = models.CharField(max_length=100, default='UTC')
 
     def __str__(self):
         return f"{self.user.username} ({self.email})"
 
-    # Save and sync the info with the User model.
+    # Save and sync the User and Profile model.
     def save(self, *args, **kwargs):
         self.username = self.user.username
         self.first_name = self.user.first_name
         self.last_name = self.user.last_name
         self.email = self.user.email
         super().save(*args, **kwargs)
-        
+
     @property
-    def date_joined(self):  # Get the date_joined from the User model.
+    def date_joined(self):
         return self.user.date_joined
     
-    
-# Create or update the user.
+
+# Create or update the User when one is created.
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
     else:
         instance.profile.save()
+
+
+class Post(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    body = models.TextField(max_length=240)
+    media = models.ImageField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def number_of_likes(self):
+        return self.likes.count()
+
+    def number_of_comments(self):
+        return self.comments.count()
+
+    # Get the user timezone
+    def get_created_at_in_user_timezone(self, user):
+        user_timezone = pytz.timezone(user.profile.timezone)
+        return self.created_at.astimezone(user_timezone)
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField(max_length=240)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user.username} commented on post {self.post.id}"
+
+    def get_created_at_in_user_timezone(self, user):
+        user_timezone = pytz.timezone(user.profile.timezone)
+        return self.created_at.astimezone(user_timezone)
+
+
+class Likes(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ('post', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} liked post {self.post.id}"

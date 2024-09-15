@@ -87,7 +87,7 @@ export default function EditProfileView() {
           <div className="max-w-screen-xl mx-auto flex">
           {/* Left Sidebar */}
           <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-6 pl-12">
-            <ConnectXLogo />
+              
           </aside>
 
           {/* Main Content */}
