@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { X, Home, Bell, Mail, User, Search, LogOutIcon } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
 import useProfile from '../hooks/useProfile';
+import api from '../api';
 
 
 const TrendingTopic = ({ topic, posts }) => (
@@ -17,6 +18,24 @@ export default function HomeView() {
 
     const username = localStorage.getItem('username');
     const { profile, loading } = useProfile(username);
+    const [postContent, setPostContent] = useState('');
+
+    const makePost = async () => {
+      try {
+        const response = await api.post('/api/posts/', {
+          body: postContent
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(response);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    
+    
 
     if (loading) return <div>Loading...</div>;
 
@@ -74,16 +93,20 @@ export default function HomeView() {
               <div className="flex space-x-4">
                 <img src={profile.avatar} alt={profile.username} className="w-12 h-12 rounded-full" />
                 <div className="flex-1">
-                  <textarea 
-                    className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none" 
+                  <textarea
+                    className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none"
                     placeholder="What's happening?"
                     rows="3"
-                  ></textarea>
+                    value={postContent}
+                    onChange={(event) => setPostContent(event.target.value)}
+                  >
+
+                  </textarea>
                   <div className="flex justify-between items-center mt-4">
                     <div className="flex space-x-2 text-primary">
                       {/* Add post attachment options here */}
                     </div>
-                    <button className="bg-primary text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200">
+                    <button onClick={makePost} className="bg-primary text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200">
                       Post
                     </button>
                   </div>

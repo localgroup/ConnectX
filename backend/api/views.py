@@ -4,10 +4,116 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from django.contrib.auth.models import User
-from .serializers import UserSerializer, ProfileSerializer
-from .models import Profile
+from .serializers import UserSerializer, ProfileSerializer, PostSerializer, CommentSerializer, LikesSerializer
+from .models import Profile, Post, Comment, Likes
+from rest_framework.exceptions import ValidationError, PermissionDenied
+
+
+class LikesListCreateView(generics.ListCreateAPIView):
+    queryset = Likes.objects.all()
+    serializer_class = LikesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        post_pk = self.kwargs.get('post_pk')
+        return Likes.objects.filter(post__pk=post_pk)
+
+    def perform_create(self, serializer):
+        post_pk = self.kwargs.get('post_pk')
+        post = get_object_or_404(Post, pk=post_pk)
+        # Ensure a user can only like a post once.
+        if not Likes.objects.filter(post=post, user=self.request.user).exists():
+            serializer.save(post=post, user=self.request.user)
+        else:
+            raise ValidationError("You have already liked this post.")
+
+
+class LikesDetailView(generics.RetrieveDestroyAPIView):
+    queryset = Likes.objects.all()
+    serializer_class = LikesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_destroy(self, instance):
+        # Ensure that only the user who liked the post can remove the like.
+        if instance.user == self.request.user:
+            instance.delete()
+        else:
+            raise PermissionDenied("You cannot remove someone else's like.")
+
+
+class CommentListCreateView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view comments, but only authenticated users can create.
+
+    def get_queryset(self):
+        post_pk = self.kwargs.get('post_pk')
+        return Comment.objects.filter(post__pk=post_pk)
+    
+    def perform_create(self, serializer):
+        post_pk = self.kwargs.get('post_pk')
+        post = get_object_or_404(Post, pk=post_pk)
+        serializer.save(post=post, user=self.request.user)  # Associate the comment with the currently logged-in user.
+
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        comment = get_object_or_404(Comment, pk=pk)
+        return comment
+
+    def perform_update(self, serializer):
+        # Ensure that only the author of the comment can update it.
+        if self.request.user == self.get_object().user:
+            serializer.save(user=self.request.user)
+        else:
+            raise PermissionDenied("You do not have permission to edit this comment.")
+
+    def perform_destroy(self, instance):
+        # Ensure that only the author of the comment can delete it.
+        if instance.user == self.request.user:
+            instance.delete()
+        else:
+            raise PermissionDenied("You do not have permission to delete this comment.")
+
+
+class PostListCreateView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view posts, but only authenticated users can create.
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)  # Associate the post with the currently logged-in user.
+
+
+class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Only post authors should be able to update/delete their posts.
+
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        post = get_object_or_404(Post, pk=pk)
+        return post
+    
+    def perform_update(self, serializer):
+        # Ensure that only the author can update the post.
+        if self.request.user == self.get_object().user:
+            serializer.save(user=self.request.user)
+        else:
+            raise PermissionDenied("You do not have permission to edit this post.")
+        
+    def perform_destroy(self, instance):
+        if instance.user == self.request.user:
+            instance.delete()
+        else:
+            raise PermissionDenied("You do not have permission to delete this post.")
 
 
 # Retrieve user profile.

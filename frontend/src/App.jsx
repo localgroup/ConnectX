@@ -35,6 +35,11 @@ function App() {
                 <Home />
               </ProtectedRoute> 
             />
+            <Route path="/posts" element=
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute> 
+            />
             <Route path="/:username" element=
               <ProtectedRoute>
                 <Profile />
