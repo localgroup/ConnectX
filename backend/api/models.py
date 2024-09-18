@@ -45,8 +45,26 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         instance.profile.save()
 
 
+# class Post(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+#     body = models.TextField(max_length=240)
+#     media = models.ImageField(null=True, blank=True)
+#     created_at = models.DateTimeField(default=timezone.now)
+
+#     def number_of_likes(self):
+#         return self.likes.count()
+
+#     def number_of_comments(self):
+#         return self.comments.count()
+
+#     # Get the user timezone
+#     def get_created_at_in_user_timezone(self, user):
+#         user_timezone = pytz.timezone(user.profile.timezone)
+#         return self.created_at.astimezone(user_timezone)
+
+
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     body = models.TextField(max_length=240)
     media = models.ImageField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -58,19 +76,19 @@ class Post(models.Model):
         return self.comments.count()
 
     # Get the user timezone
-    def get_created_at_in_user_timezone(self, user):
-        user_timezone = pytz.timezone(user.profile.timezone)
+    def get_created_at_in_user_timezone(self, author):
+        user_timezone = pytz.timezone(author.profile.timezone)
         return self.created_at.astimezone(user_timezone)
 
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField(max_length=240)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.user.username} commented on post {self.post.id}"
+        return f"{self.author.username} commented on post {self.post.id}"
 
     def get_created_at_in_user_timezone(self, user):
         user_timezone = pytz.timezone(user.profile.timezone)
@@ -79,11 +97,11 @@ class Comment(models.Model):
 
 class Likes(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        unique_together = ('post', 'user')
+        unique_together = ('post', 'author')
 
     def __str__(self):
-        return f"{self.user.username} liked post {self.post.id}"
+        return f"{self.author.username} liked post {self.post.id}"

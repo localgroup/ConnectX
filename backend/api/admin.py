@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Profile
+from .models import Profile, Post
 from dateutil.parser import parse
 
 
@@ -49,3 +49,6 @@ class ProfileAdmin(admin.ModelAdmin):
         else:
             queryset |= self.model.objects.filter(user__date_joined__date=search_term_as_date.date())
         return queryset, use_distinct
+    
+    
+admin.site.register(Post)

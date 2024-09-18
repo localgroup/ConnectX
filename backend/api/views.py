@@ -24,8 +24,8 @@ class LikesListCreateView(generics.ListCreateAPIView):
         post_pk = self.kwargs.get('post_pk')
         post = get_object_or_404(Post, pk=post_pk)
         # Ensure a user can only like a post once.
-        if not Likes.objects.filter(post=post, user=self.request.user).exists():
-            serializer.save(post=post, user=self.request.user)
+        if not Likes.objects.filter(post=post, author=self.request.user).exists():
+            serializer.save(post=post, author=self.request.user)
         else:
             raise ValidationError("You have already liked this post.")
 
@@ -37,7 +37,7 @@ class LikesDetailView(generics.RetrieveDestroyAPIView):
 
     def perform_destroy(self, instance):
         # Ensure that only the user who liked the post can remove the like.
-        if instance.user == self.request.user:
+        if instance.author == self.request.user:
             instance.delete()
         else:
             raise PermissionDenied("You cannot remove someone else's like.")
@@ -55,7 +55,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         post_pk = self.kwargs.get('post_pk')
         post = get_object_or_404(Post, pk=post_pk)
-        serializer.save(post=post, user=self.request.user)  # Associate the comment with the currently logged-in user.
+        serializer.save(post=post, author=self.request.user)  # Associate the comment with the currently logged-in user.
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -70,14 +70,14 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         # Ensure that only the author of the comment can update it.
-        if self.request.user == self.get_object().user:
-            serializer.save(user=self.request.user)
+        if self.request.user == self.get_object().author:
+            serializer.save(author=self.request.user)
         else:
             raise PermissionDenied("You do not have permission to edit this comment.")
 
     def perform_destroy(self, instance):
         # Ensure that only the author of the comment can delete it.
-        if instance.user == self.request.user:
+        if instance.author == self.request.user:
             instance.delete()
         else:
             raise PermissionDenied("You do not have permission to delete this comment.")
@@ -88,8 +88,13 @@ class PostListCreateView(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view posts, but only authenticated users can create.
 
+    def get_queryset(self):
+        user = self.request.user
+        return Post.objects.filter(author=user)
+    
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)  # Associate the post with the currently logged-in user.
+        serializer.save(author=self.request.user)  # Associate the post with the currently logged-in user.
+
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -97,6 +102,13 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # Only post authors should be able to update/delete their posts.
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
     def get_object(self):
         pk = self.kwargs.get('pk')
         post = get_object_or_404(Post, pk=pk)
@@ -104,13 +116,13 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     def perform_update(self, serializer):
         # Ensure that only the author can update the post.
-        if self.request.user == self.get_object().user:
-            serializer.save(user=self.request.user)
+        if self.request.user == self.get_object().author:
+            serializer.save(author=self.request.user)
         else:
             raise PermissionDenied("You do not have permission to edit this post.")
         
     def perform_destroy(self, instance):
-        if instance.user == self.request.user:
+        if instance.author == self.request.user:
             instance.delete()
         else:
             raise PermissionDenied("You do not have permission to delete this post.")

@@ -1,11 +1,10 @@
-import React, {useState} from 'react';
-import { X, Home, Bell, Mail, User, Search, LogOutIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Home, Bell, Mail, User, Search, LogOutIcon, Camera } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
 import useProfile from '../hooks/useProfile';
 import api from '../api';
-
 
 const TrendingTopic = ({ topic, posts }) => (
   <div className="p-3 hover:bg-gray-800 transition duration-200">
@@ -15,26 +14,61 @@ const TrendingTopic = ({ topic, posts }) => (
 );
 
 export default function HomeView() {
-
     const username = localStorage.getItem('username');
     const { profile, loading } = useProfile(username);
-    const [postContent, setPostContent] = useState('');
+    const [postData, setPostData] = useState({
+      body: "",
+      media: null,
+    });
 
-    const makePost = async () => {
+    // Handle file change (e.g., media upload)
+    const handleFileChange = (e) => {
+      const { name, files } = e.target;
+      setPostData((prevData) => ({
+        ...prevData,
+        [name]: files[0], // Update the file in postData
+      }));
+    };
+
+    // Handle text input changes
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setPostData((prevData) => ({
+        ...prevData,
+        [name]: value, // Update the body in postData
+      }));
+    };
+
+    // Handle form submission
+    const makePost = async (e) => {
+      e.preventDefault();
+    
+      const formData = new FormData();
+    
+      Object.keys(postData).forEach((key) => {
+        if (postData[key] !== "" && postData[key] !== null) {
+          formData.append(key, postData[key]);
+        }
+      });
+    
       try {
-        const response = await api.post('/api/posts/', {
-          body: postContent
-        }, {
+        const response = await api.post("/api/posts/", formData, {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "multipart/form-data", // This can stay as file uploads require multipart encoding
+          },
         });
-        console.log(response);
+    
+        if (response.status === 201) {
+          setPostData({ body: "", media: null });
+          alert("Successfully created post");
+        } else {
+          alert("Failed to create post");
+        }
       } catch (err) {
-        console.log(err);
+        console.error("Error creating post:", err.response?.data || err.message);
+        alert(`Error: ${err.response?.data?.detail || err.message}`);
       }
     };
-    
     
 
     if (loading) return <div>Loading...</div>;
@@ -70,7 +104,7 @@ export default function HomeView() {
               </button>
             </div>
             <div className="mb-4 flex items-center space-x-3">
-            <img src={profile.avatar || '/placeholder.svg?height=150&width=150'} alt="Profile" className="w-10 h-10 rounded-full" />
+              <img src={profile.avatar || '/placeholder.svg?height=150&width=150'} alt="Profile" className="w-10 h-10 rounded-full" />
               <div className="hidden xl:block">
                 {profile ? (
                   <>
@@ -90,28 +124,42 @@ export default function HomeView() {
               <h1 className="text-xl font-bold">Home</h1>
             </header>
             <div className="p-4 border-b border-gray-800">
-              <div className="flex space-x-4">
-                <img src={profile.avatar} alt={profile.username} className="w-12 h-12 rounded-full" />
-                <div className="flex-1">
-                  <textarea
-                    className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none"
-                    placeholder="What's happening?"
-                    rows="3"
-                    value={postContent}
-                    onChange={(event) => setPostContent(event.target.value)}
-                  >
-
-                  </textarea>
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="flex space-x-2 text-primary">
-                      {/* Add post attachment options here */}
+              {/* Post creation form */}
+              <form onSubmit={makePost} encType="multipart/form-data">
+                <div className="flex space-x-4">
+                  <img src={profile.avatar} alt={profile.username} className="w-12 h-12 rounded-full" />
+                  <div className="flex-1">
+                    <textarea
+                      className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none"
+                      placeholder="What's happening?"
+                      rows="7"
+                      name="body"
+                      value={postData.body || ""}
+                      onChange={handleChange} // Handle text input
+                      required
+                      maxLength={240}
+                    />
+                    <p>{240 - postData.body.length} characters remaining</p>
+                    <div className="relative mb-6">
+                      {postData.media && (
+                        <img src={URL.createObjectURL(postData.media)} alt="Media" className="image-upload" />
+                      )}
+                      <label htmlFor="media" className="absolute top-2 right-2 bg-black bg-opacity-60 rounded-full p-2 cursor-pointer">
+                        <Camera className="h-5 w-5" />
+                        <input type="file" id="media" name="media" onChange={handleFileChange} className="hidden" />
+                      </label>
                     </div>
-                    <button onClick={makePost} className="bg-primary text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200">
-                      Post
-                    </button>
+                    <div className="flex justify-between items-center mt-4">
+                      <button
+                        type="submit"
+                        className="bg-primary text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200"
+                      >
+                        Post
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </form>
             </div>
             <div>
               {posts.map((post, index) => (

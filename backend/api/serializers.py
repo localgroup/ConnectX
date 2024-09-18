@@ -69,7 +69,7 @@ class UserSerializer(serializers.ModelSerializer):
     
 class PostSerializer(serializers.ModelSerializer):
     # Retrieve the related user info.
-    user = serializers.StringRelatedField(source='user.username', read_only=True)
+    author = serializers.StringRelatedField(source='author.username', read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
@@ -86,32 +86,32 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'user', 'body', 'media', 'created_at', 'updated_at',
+            'id', 'author', 'body', 'media', 'created_at', 'updated_at',
             'number_of_likes', 'number_of_comments'
         ]
-        read_only_fields = ['user', 'created_at', 'updated_at', 'number_of_likes', 'number_of_comments']
+        read_only_fields = ['author', 'created_at', 'updated_at', 'number_of_likes', 'number_of_comments']
 
 
 class LikesSerializer(serializers.ModelSerializer):
     # Retrieve the full post details using PostSerializer.
     post = PostSerializer(read_only=True)
-    user = serializers.StringRelatedField(source='user.username', read_only=True)
+    author = serializers.StringRelatedField(source='author.username', read_only=True)
 
     class Meta:
         model = Likes
-        fields = ['id', 'post', 'user']
-        read_only_fields = ['post', 'user']
+        fields = ['id', 'post', 'author']
+        read_only_fields = ['post', 'author']
 
 
 class CommentSerializer(serializers.ModelSerializer):
     # Retrieve the full post details using PostSerializer.
     post = PostSerializer(read_only=True)
-    user = serializers.StringRelatedField(source='user.username', read_only=True)
+    author = serializers.StringRelatedField(source='author.username', read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'user', 'content', 'created_at', 'updated_at']
-        read_only_fields = ['post', 'user', 'created_at', 'updated_at']
+        fields = ['id', 'post', 'author', 'content', 'created_at', 'updated_at']
+        read_only_fields = ['post', 'author', 'created_at', 'updated_at']
 
