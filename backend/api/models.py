@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import FileExtensionValidator
 from django.utils import timezone
 import pytz
 
@@ -45,28 +46,12 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         instance.profile.save()
 
 
-# class Post(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-#     body = models.TextField(max_length=240)
-#     media = models.ImageField(null=True, blank=True)
-#     created_at = models.DateTimeField(default=timezone.now)
-
-#     def number_of_likes(self):
-#         return self.likes.count()
-
-#     def number_of_comments(self):
-#         return self.comments.count()
-
-#     # Get the user timezone
-#     def get_created_at_in_user_timezone(self, user):
-#         user_timezone = pytz.timezone(user.profile.timezone)
-#         return self.created_at.astimezone(user_timezone)
-
-
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     body = models.TextField(max_length=240)
-    media = models.ImageField(null=True, blank=True)
+    media = models.ImageField(upload_to='posts/', null=True, blank=True, validators=[
+        FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp'], message='Only image files are allowed')
+    ])
     created_at = models.DateTimeField(default=timezone.now)
 
     def number_of_likes(self):

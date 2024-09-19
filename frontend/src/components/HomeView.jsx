@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Home, Bell, Mail, User, Search, LogOutIcon, Camera } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
@@ -14,12 +14,28 @@ const TrendingTopic = ({ topic, posts }) => (
 );
 
 export default function HomeView() {
+
     const username = localStorage.getItem('username');
     const { profile, loading } = useProfile(username);
     const [postData, setPostData] = useState({
       body: "",
       media: null,
     });
+
+    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+      const fetchPosts = async () => {
+        try {
+          const response = await api.get('/api/posts/');
+          console.log(response.data);
+          setPosts(response.data);
+        } catch (err) {
+          console.error('Error fetching posts:', err.response?.data || err.message);
+        }
+      };
+      fetchPosts();
+    }, []);
 
     // Handle file change (e.g., media upload)
     const handleFileChange = (e) => {
@@ -73,9 +89,6 @@ export default function HomeView() {
 
     if (loading) return <div>Loading...</div>;
 
-    const posts = [
-      { username: "John Doe", handle: "johndoe", content: "Just had an amazing breakthrough with my latest project! #coding #success", likes: 45, comments: 12, reposts: 8 },
-    ];
 
     const trendingTopics = [
       { topic: "#coding", posts: "12.5K" },
@@ -162,9 +175,19 @@ export default function HomeView() {
               </form>
             </div>
             <div>
-              {posts.map((post, index) => (
-                <Post key={index} {...post} />
-              ))}
+              {posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((post) => (
+                      <Post
+                      key={post.id}
+                      avatar={post.author_avatar}
+                      username={post.author}
+                      handle={post.author}
+                      content={post.body}
+                      media={post.media}
+                      created_at={post.created_at}
+                      likes={post.number_of_likes}
+                      comments={post.number_of_comments}
+                  />
+                ))}
             </div>
           </main>
 

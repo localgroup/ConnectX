@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Profile, User, Post, Comment, Likes
+from django.conf import settings
+from urllib.parse import urljoin
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -38,7 +40,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer(source='profile', read_only=True)   # Retrieve the Profile instance.
+    # profile = ProfileSerializer(source='profile', read_only=True)   # Retrieve the Profile instance.
+    profile = ProfileSerializer(read_only=True)   # Retrieve the Profile instance.
     
     class Meta:
         model = User   # Use User model.
@@ -70,12 +73,23 @@ class UserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     # Retrieve the related user info.
     author = serializers.StringRelatedField(source='author.username', read_only=True)
+    author_avatar = serializers.SerializerMethodField()  # Method to get avatar URL
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
     # Including counts of likes and comments.
     number_of_likes = serializers.SerializerMethodField()
     number_of_comments = serializers.SerializerMethodField()
+    media = serializers.ImageField(max_length=255, use_url=True, required=False)
+
+    # Method to retrieve the full avatar URL
+    def get_author_avatar(self, obj):
+        request = self.context.get('request')
+        if obj.author.profile.avatar:
+            avatar_url = obj.author.profile.avatar.url
+            return request.build_absolute_uri(avatar_url)
+        else:
+            return None  # or a default avatar URL
 
     def get_number_of_likes(self, obj):
         return obj.likes.count()
@@ -83,13 +97,28 @@ class PostSerializer(serializers.ModelSerializer):
     def get_number_of_comments(self, obj):
         return obj.comments.count()
 
+    def get_media(self, obj):
+        if obj.media:
+            request = self.context.get('request')
+            media_url = obj.media.url
+            return request.build_absolute_uri(media_url)
+        else:
+            return None
+
     class Meta:
         model = Post
         fields = [
-            'id', 'author', 'body', 'media', 'created_at', 'updated_at',
+            'id', 'author', 'author_avatar', 'body', 'media', 'created_at', 'updated_at',
             'number_of_likes', 'number_of_comments'
         ]
         read_only_fields = ['author', 'created_at', 'updated_at', 'number_of_likes', 'number_of_comments']
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        user = request.user
+        validated_data['author'] = user
+        return super().create(validated_data)
+
 
 
 class LikesSerializer(serializers.ModelSerializer):

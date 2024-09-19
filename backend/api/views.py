@@ -83,18 +83,29 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
             raise PermissionDenied("You do not have permission to delete this comment.")
 
 
+# class PostListCreateView(generics.ListCreateAPIView):
+#     queryset = Post.objects.all()
+#     serializer_class = PostSerializer
+#     permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view posts, but only authenticated users can create.
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         return Post.objects.filter(author=user)
+    
+#     def perform_create(self, serializer):
+#         serializer.save(author=self.request.user)  # Associate the post with the currently logged-in user.
+
 class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view posts, but only authenticated users can create.
 
     def get_queryset(self):
-        user = self.request.user
-        return Post.objects.filter(author=user)
-    
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)  # Associate the post with the currently logged-in user.
-
+        if 'username' in self.kwargs:
+            username = self.kwargs['username']
+            user = get_object_or_404(User, username=username)
+            return Post.objects.filter(author=user)
+        else:
+            return Post.objects.all()
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):

@@ -39,9 +39,9 @@ export default function ProfileView() {
     };
 
     const posts = [
-      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Just launched a new open-source project! Check it out and let me know what you think. #OpenSource #Coding", likes: 89, comments: 23, reposts: 12 },
-      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Excited to speak at the upcoming tech conference next month! Who else is attending? #TechConference #PublicSpeaking", likes: 134, comments: 45, reposts: 28 },
-      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Coffee break ☕ - the perfect time to brainstorm new ideas. What's your go-to drink for productivity?", likes: 56, comments: 17, reposts: 3 },
+      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Just launched a new open-source project! Check it out and let me know what you think. #OpenSource #Coding", likes: 89, comments: 23 },
+      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Excited to speak at the upcoming tech conference next month! Who else is attending? #TechConference #PublicSpeaking", likes: 134, comments: 45 },
+      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Coffee break ☕ - the perfect time to brainstorm new ideas. What's your go-to drink for productivity?", likes: 56, comments: 17 },
     ];
 
     const trendingTopics = [
