@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Home, Bell, Mail, User, Search, LogOutIcon, ArrowLeft, MapPin, Calendar, Link } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
+import api from '../api';
 import useProfile from '../hooks/useProfile';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -20,6 +21,21 @@ export default function ProfileView() {
     const navigate = useNavigate();  
     const { username } = useParams();
     const { profile, loading } = useProfile(username);
+
+    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+      const fetchProfileData = async () => {
+        try {
+          const response = await api.get(`/api/${username}/`);  // Fetch the profile along with posts
+          console.log(response.data.posts);
+          setPosts(response.data.posts);  // The posts come from the backend response
+        } catch (err) {
+          console.error('Error fetching profile and posts:', err.response?.data || err.message);
+        }
+      };
+      fetchProfileData();
+    }, [username]);
     
 
     if (loading) return <div>Loading...</div>;
@@ -37,12 +53,6 @@ export default function ProfileView() {
       following: 456,
       followers: 1234,
     };
-
-    const posts = [
-      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Just launched a new open-source project! Check it out and let me know what you think. #OpenSource #Coding", likes: 89, comments: 23 },
-      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Excited to speak at the upcoming tech conference next month! Who else is attending? #TechConference #PublicSpeaking", likes: 134, comments: 45 },
-      { avatar:userProfile.avatar, username: userProfile.name, handle: userProfile.handle, content: "Coffee break ☕ - the perfect time to brainstorm new ideas. What's your go-to drink for productivity?", likes: 56, comments: 17 },
-    ];
 
     const trendingTopics = [
       { topic: "#coding", posts: "12.5K" },
@@ -134,8 +144,18 @@ export default function ProfileView() {
                 </div>
               </div>
               <div className="mt-8">
-                {posts.map((post, index) => (
-                  <Post key={index} {...post} />
+              {posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((post) => (
+                      <Post
+                      key={post.id}
+                      avatar={post.author_avatar}
+                      username={post.author}
+                      handle={post.author}
+                      content={post.body}
+                      media={post.media}
+                      created_at={post.created_at}
+                      likes={post.number_of_likes}
+                      comments={post.number_of_comments}
+                  />
                 ))}
               </div>
             </div>

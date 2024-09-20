@@ -83,18 +83,6 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
             raise PermissionDenied("You do not have permission to delete this comment.")
 
 
-# class PostListCreateView(generics.ListCreateAPIView):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#     permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view posts, but only authenticated users can create.
-
-#     def get_queryset(self):
-#         user = self.request.user
-#         return Post.objects.filter(author=user)
-    
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.request.user)  # Associate the post with the currently logged-in user.
-
 class PostListCreateView(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view posts, but only authenticated users can create.
@@ -141,14 +129,30 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 # Retrieve user profile.
 class ProfileView(generics.RetrieveAPIView):
+    # Retrieve a user's profile
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
     lookup_url_kwarg = 'username'
 
     def get_object(self):
+        # Retrieve a user's profile by username
         username = self.kwargs.get(self.lookup_url_kwarg)
         user = get_object_or_404(User, username=username)
         return user.profile
+    
+    def get(self, request, *args, **kwargs):
+        # Return the user's profile and their posts
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        
+        if self.kwargs.get(self.lookup_url_kwarg) == request.user.username:
+            user_posts = PostSerializer(Post.objects.filter(author=request.user), many=True, context={'request': request}).data
+        else:
+            user_posts = PostSerializer(Post.objects.filter(author=instance.user), many=True, context={'request': request}).data
+
+        data['posts'] = user_posts
+        return Response(data)
 
 
 # Update user profile.

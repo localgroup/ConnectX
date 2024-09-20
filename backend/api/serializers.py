@@ -113,6 +113,12 @@ class PostSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['author', 'created_at', 'updated_at', 'number_of_likes', 'number_of_comments']
 
+    # Get the posts made by the profile author.
+    def get_user_posts(self, obj):
+        user_posts = Post.objects.filter(author=obj.author)
+        return self.__class__(user_posts, many=True, context={'request': self.context['request']}).data
+    
+    # Create a post made by the user.
     def create(self, validated_data):
         request = self.context.get('request')
         user = request.user
