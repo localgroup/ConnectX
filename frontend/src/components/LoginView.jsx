@@ -3,6 +3,7 @@ import { Brackets, X, Eye, EyeOff } from 'lucide-react';
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+import { useAuth } from '../contexts/useAuth';
 
 
 const currentYear = new Date().getFullYear();
@@ -16,14 +17,16 @@ const ConnectXLogo = () => (
     </div>
   );
 
-export default function LoginView({route, method}) {
-    const navigate = useNavigate()
+export default function LoginView() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,23 +47,18 @@ export default function LoginView({route, method}) {
     e.preventDefault();
     const formErrors = validateForm();
     if (Object.keys(formErrors).length === 0) {
-        try {
-            const res = await api.post(route, { username: formData.username, password: formData.password });
-            if (method === "login") {
-                localStorage.setItem(ACCESS_TOKEN, res.data.access);
-                localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-                localStorage.setItem('username', formData.username);  // Save username
-                navigate("/home");
-                window.location.reload();
-            } else {
-                navigate("/login");
-                window.location.reload();
-            }
-        } catch (error) {
-            alert(error);
+      try {
+        const success = await login(formData.username, formData.password);
+        if (success) {
+          navigate("/home");
+        } else {
+          alert("Login failed. Please try again.");
         }
+      } catch (error) {
+        alert(error);
+      }
     } else {
-        setErrors(formErrors);
+      setErrors(formErrors);
     }
   };
 

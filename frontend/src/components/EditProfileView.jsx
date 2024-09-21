@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Camera } from 'lucide-react';
-import ConnectXLogo from './ConnectXLogo';
 import useProfile from '../hooks/useProfile.js';
 import useUpdateProfile from '../hooks/useUpdateProfile.js'; 
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/useAuth.js';
 
 
 export default function EditProfileView() {
-    const navigate = useNavigate();
     const { username } = useParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
+
     const { profile } = useProfile(username);
     const { updateProfile } = useUpdateProfile();
     
+    useEffect(() => {
+      if (user && user.username !== username) {
+        navigate(`/${username}`);
+      }
+    }, [user, username, navigate]);
+
     const [formData, setFormData] = useState({
       first_name: "",
       last_name: "",

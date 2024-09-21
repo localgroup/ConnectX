@@ -5,6 +5,9 @@ import NavItem from './NavItem';
 import Post from './Post';
 import useProfile from '../hooks/useProfile';
 import api from '../api';
+import { useAuth } from '../contexts/useAuth';
+
+
 
 const TrendingTopic = ({ topic, posts }) => (
   <div className="p-3 hover:bg-gray-800 transition duration-200">
@@ -15,8 +18,8 @@ const TrendingTopic = ({ topic, posts }) => (
 
 export default function HomeView() {
 
-    const username = localStorage.getItem('username');
-    const { profile, loading } = useProfile(username);
+    const { user } = useAuth(); 
+    const { profile, loading } = useProfile(user?.username);
     const [postData, setPostData] = useState({
       body: "",
       media: null,
@@ -106,7 +109,7 @@ export default function HomeView() {
                 <NavItem Icon={Search} text="Explore" />
                 <NavItem Icon={Bell} text="Notifications" />
                 <NavItem Icon={Mail} text="Messages" />
-                <NavItem Icon={User} text="Profile" to={`/${profile.username}`} />
+                <NavItem Icon={User} text="Profile" to={`/${user?.username}`} />
                 <NavItem Icon={LogOutIcon} text="LogOut" to="/logout/" />
               </nav>
               <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
@@ -117,7 +120,7 @@ export default function HomeView() {
               </button>
             </div>
             <div className="mb-4 flex items-center space-x-3">
-              <img src={profile.avatar || '/placeholder.svg?height=150&width=150'} alt="Profile" className="w-10 h-10 rounded-full" />
+              <img src={profile?.avatar || '/placeholder.svg?height=150&width=150'} alt="Profile" className="w-10 h-10 rounded-full" />
               <div className="hidden xl:block">
                 {profile ? (
                   <>
@@ -140,7 +143,7 @@ export default function HomeView() {
               {/* Post creation form */}
               <form onSubmit={makePost} encType="multipart/form-data">
                 <div className="flex space-x-4">
-                  <img src={profile.avatar} alt={profile.username} className="w-12 h-12 rounded-full" />
+                  <img src={profile?.avatar} alt={profile?.username} className="w-12 h-12 rounded-full" />
                   <div className="flex-1">
                     <textarea
                       className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none"

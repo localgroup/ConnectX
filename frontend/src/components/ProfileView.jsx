@@ -7,6 +7,7 @@ import api from '../api';
 import useProfile from '../hooks/useProfile';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import { useAuth } from '../contexts/useAuth';
 
 
 const TrendingTopic = ({ topic, posts }) => (
@@ -17,9 +18,10 @@ const TrendingTopic = ({ topic, posts }) => (
 );
 
 export default function ProfileView() {
+    const { username } = useParams();
+    const { user } = useAuth();
 
     const navigate = useNavigate();  
-    const { username } = useParams();
     const { profile, loading } = useProfile(username);
 
     const [posts, setPosts] = useState([]);
@@ -74,7 +76,7 @@ export default function ProfileView() {
                 <NavItem Icon={Search} text="Explore" />
                 <NavItem Icon={Bell} text="Notifications" />
                 <NavItem Icon={Mail} text="Messages" />
-                <NavItem Icon={User} text="Profile" to={`/${profile.username}`} />
+                <NavItem Icon={User} text="Profile" to={`/${user?.username}`} />
                 <NavItem Icon={LogOutIcon} text="LogOut" to="/logout/" />
               </nav>
               <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
@@ -111,9 +113,11 @@ export default function ProfileView() {
               </div>
               <div className="mt-20 px-4">
                 <div className="flex justify-end mb-4">
-                  <button onClick={handleEditProfile} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-gray-900">
-                    Edit profile
-                  </button>
+                  {user && user.username === username && (
+                    <button onClick={handleEditProfile} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-gray-900">
+                      Edit profile
+                    </button>
+                  )}
                 </div>
                 <h2 className="text-2xl font-bold">{userProfile.name}</h2>
                 <p className="text-gray-500">@{userProfile.handle}</p>
