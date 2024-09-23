@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Home, Bell, Mail, User, Search, LogOutIcon, ArrowLeft, MapPin, Calendar, Link } from 'lucide-react';
+import { X, Home, Bell, Mail, User, Search, LogOutIcon, MapPin, Calendar, Link } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import Post from './Post';
@@ -61,7 +61,7 @@ export default function ProfileView() {
     ];
 
     const handleEditProfile = () => {
-      navigate(`/${profile.username}/update-profile/`);
+      navigate(`/${user?.username}/update-profile/`);
     };
 
     return (
@@ -98,9 +98,6 @@ export default function ProfileView() {
           {/* Main Content */}
           <main className="flex-1 border-x border-gray-800">
             <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800 flex items-center space-x-4">
-              <button className="rounded-full p-2 hover:bg-gray-800">
-                <ArrowLeft className="h-5 w-5" />
-              </button>
               <div>
                 <h1 className="text-xl font-bold">{userProfile.name}</h1>
                 <p className="text-sm text-gray-500">{posts.length} posts</p>

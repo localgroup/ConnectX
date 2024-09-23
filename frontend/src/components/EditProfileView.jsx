@@ -64,6 +64,11 @@ export default function EditProfileView() {
       }));
     };
 
+    function arrowLeft() {
+      // Redirect to the profile page
+      navigate(`/${username}/`);
+    }
+
     const handleSubmit = async (e) => {
       e.preventDefault();
       const form = new FormData();
@@ -103,7 +108,7 @@ export default function EditProfileView() {
               <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800 flex items-center space-x-4">
               <div className="flex items-center space-x-4">
                 <button className="rounded-full p-2 hover:bg-gray-800">
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft onClick={arrowLeft} className="h-5 w-5" />
                 </button>
                 <h1 className="text-xl font-bold">Edit profile</h1>
               </div>

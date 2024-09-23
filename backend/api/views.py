@@ -167,7 +167,7 @@ class UpdateProfileView(generics.UpdateAPIView):
         username = self.kwargs.get(self.lookup_url_kwarg)
         user = get_object_or_404(User, username=username)
         if self.request.user != user:
-            raise permissions.PermissionDenied("You do not have permission to update this profile.")
+            raise PermissionDenied("You do not have permission to update this profile.")
         return user.profile
 
     # Update the User and Profiel model.
