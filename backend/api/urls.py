@@ -10,8 +10,7 @@ urlpatterns = [
     # path('posts/', views.PostListCreateView.as_view(), name='post-list'),
     path('<str:username>/posts/', views.PostListCreateView.as_view(), name='user-post-list'),
     path('posts/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'), 
-    path('posts/<int:post_pk>/likes/', views.LikesListCreateView.as_view(), name='like-list'),
-    path('likes/<int:pk>/', views.LikesDetailView.as_view(), name='like-detail'),
+    path('posts/<int:post_pk>/likes/', views.LikesView.as_view(), name='like'),
     path('posts/<int:post_pk>/comments/', views.CommentListCreateView.as_view(), name='comment-list'),
     path('comments/<int:pk>/', views.CommentDetailView.as_view(), name='comment-detail'),
 ]

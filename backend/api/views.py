@@ -11,36 +11,39 @@ from .models import Profile, Post, Comment, Likes
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
 
-class LikesListCreateView(generics.ListCreateAPIView):
+class LikesView(generics.GenericAPIView):
     queryset = Likes.objects.all()
     serializer_class = LikesSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        post_pk = self.kwargs.get('post_pk')
-        return Likes.objects.filter(post__pk=post_pk)
-
-    def perform_create(self, serializer):
-        post_pk = self.kwargs.get('post_pk')
+    def get(self, request, post_pk):
         post = get_object_or_404(Post, pk=post_pk)
-        # Ensure a user can only like a post once.
-        if not Likes.objects.filter(post=post, author=self.request.user).exists():
-            serializer.save(post=post, author=self.request.user)
+        like = Likes.objects.filter(post=post, author=request.user).first()
+        is_liked = like is not None
+        likes_count = post.number_of_likes()
+        return Response({
+            'is_liked': is_liked,
+            'likes_count': likes_count
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        if not Likes.objects.filter(post=post, author=request.user).exists():
+            serializer = self.get_serializer(data={'post': post_pk})
+            serializer.is_valid(raise_exception=True)
+            serializer.save(post=post, author=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             raise ValidationError("You have already liked this post.")
 
-
-class LikesDetailView(generics.RetrieveDestroyAPIView):
-    queryset = Likes.objects.all()
-    serializer_class = LikesSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_destroy(self, instance):
-        # Ensure that only the user who liked the post can remove the like.
-        if instance.author == self.request.user:
-            instance.delete()
+    def delete(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        like = Likes.objects.filter(post=post, author=request.user)
+        if like.exists():
+            like.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            raise PermissionDenied("You cannot remove someone else's like.")
+            raise ValidationError("You have not liked this post.")
 
 
 class CommentListCreateView(generics.ListCreateAPIView):

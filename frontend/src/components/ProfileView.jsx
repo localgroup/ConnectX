@@ -148,14 +148,14 @@ export default function ProfileView() {
               {posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((post) => (
                       <Post
                       key={post.id}
+                      postId={post.id}
                       avatar={post.author_avatar}
                       username={post.author}
                       handle={post.author}
                       content={post.body}
                       media={post.media}
                       created_at={post.created_at}
-                      likes={post.number_of_likes}
-                      comments={post.number_of_comments}
+                      commentsCount={post.number_of_comments}
                   />
                 ))}
               </div>
