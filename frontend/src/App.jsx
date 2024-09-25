@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
+import ViewPost from "./pages/ViewPost";
 import './index.css';
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./pages/EditProfile";
@@ -31,7 +32,9 @@ function App() {
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/posts" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/:username/update-profile/" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          <Route path="/:username/update-profile/" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />          
+          <Route path="/posts/:postId/" element={<ProtectedRoute><ViewPost /></ProtectedRoute>} />          
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>
