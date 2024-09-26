@@ -89,7 +89,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 class PostListCreateView(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # Allow anyone to view posts, but only authenticated users can create.
-
+    
     def get_queryset(self):
         if 'username' in self.kwargs:
             username = self.kwargs['username']
@@ -115,13 +115,6 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
         pk = self.kwargs.get('pk')
         post = get_object_or_404(Post, pk=pk)
         return post
-    
-    def perform_update(self, serializer):
-        # Ensure that only the author can update the post.
-        if self.request.user == self.get_object().author:
-            serializer.save(author=self.request.user)
-        else:
-            raise PermissionDenied("You do not have permission to edit this post.")
         
     def perform_destroy(self, instance):
         if instance.author == self.request.user:

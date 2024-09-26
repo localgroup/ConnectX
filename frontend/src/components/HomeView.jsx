@@ -80,6 +80,13 @@ export default function HomeView() {
         if (response.status === 201) {
           setPostData({ body: "", media: null });
           alert("Successfully created post");
+            try {
+              const response = await api.get('/api/posts/');
+              console.log(response.data);
+              setPosts(response.data);
+            } catch (err) {
+              console.error('Error fetching posts:', err.response?.data || err.message);
+            }
         } else {
           alert("Failed to create post");
         }
