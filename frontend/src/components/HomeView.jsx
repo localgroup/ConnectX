@@ -26,6 +26,11 @@ export default function HomeView() {
     });
 
     const [posts, setPosts] = useState([]);
+    const [expanded, setExpanded] = useState(false);
+
+    function expandButton() {
+        setExpanded(true);
+    }
 
     useEffect(() => {
       const fetchPosts = async () => {
@@ -144,14 +149,14 @@ export default function HomeView() {
           {/* Main Content */}
           <main className="flex-1 border-x border-gray-800">
             <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800">
-              <h1 className="text-xl font-bold">Home</h1>
+              <h1 className="text-xl font-bold">Your Feed</h1>
             </header>
             <div className="p-4 border-b border-gray-800">
               {/* Post creation form */}
               <form onSubmit={makePost} encType="multipart/form-data">
-                <div className="flex space-x-4">
+                <div onClick={expandButton} className="flex space-x-4">
                   <img src={profile?.avatar} alt={profile?.username} className="w-12 h-12 rounded-full" />
-                  <div className="flex-1">
+                  { expanded && (<div className="flex-1">
                     <textarea
                       className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none"
                       placeholder="What's happening?"
@@ -180,7 +185,8 @@ export default function HomeView() {
                         Post
                       </button>
                     </div>
-                  </div>
+                  </div>)
+                    }
                 </div>
               </form>
             </div>

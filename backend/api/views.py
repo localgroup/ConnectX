@@ -71,13 +71,6 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         comment = get_object_or_404(Comment, pk=pk)
         return comment
 
-    def perform_update(self, serializer):
-        # Ensure that only the author of the comment can update it.
-        if self.request.user == self.get_object().author:
-            serializer.save(author=self.request.user)
-        else:
-            raise PermissionDenied("You do not have permission to edit this comment.")
-
     def perform_destroy(self, instance):
         # Ensure that only the author of the comment can delete it.
         if instance.author == self.request.user:

@@ -57,6 +57,11 @@ export default function PostDetailView() {
         }
         }
 
+    function arrowLeft() {
+        // Redirect to the profile page
+        navigate(`/home/`);
+        }
+
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -111,7 +116,7 @@ export default function PostDetailView() {
             <main className="flex-1 border-x border-gray-800">
                 <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800">
                 <button className="rounded-full p-2 hover:bg-gray-800">
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft onClick={arrowLeft} className="h-5 w-5" />
                 </button>
                 <h1 className="text-xl font-bold">Post</h1>
             </header>
@@ -142,10 +147,12 @@ export default function PostDetailView() {
                             <Heart className={`h-5 w-5 ${isLiked ? 'text-red-500' : ''}`} />
                             <span>{likesCount}</span>
                         </button>
-                        <button onClick={deletePost} className="flex items-center space-x-2 hover:text-primary">
+                        { post?.author === user?.username && 
+                            <button onClick={deletePost} className="flex items-center space-x-2 hover:text-primary">
                             <Trash2 className="h-5 w-5" />
-                        </button>
-                        </div>
+                            </button>
+                        }
+                            </div>
                     </div>
                 </div>
             </article>
@@ -182,6 +189,7 @@ export default function PostDetailView() {
                         {Array.isArray(comment) && comment.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((comm) => (
                             <Comment 
                                 key={comm.id}
+                                commentId={comm.id}
                                 author={comm.author}
                                 content={comm.content}
                                 created_at={comm.created_at}
