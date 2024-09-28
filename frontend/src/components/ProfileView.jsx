@@ -5,6 +5,7 @@ import NavItem from './NavItem';
 import Post from './Post';
 import api from '../api';
 import useProfile from '../hooks/useProfile';
+import useFollow from '../hooks/useFollow';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useAuth } from '../contexts/useAuth';
@@ -24,6 +25,17 @@ export default function ProfileView() {
     const navigate = useNavigate();  
     const { profile, loading } = useProfile(username);
 
+    const { follow, followData, getFollow, makeFollow, makeUnfollow, error } = useFollow(username);
+
+    function handleFollow() {
+      if (follow) {
+        makeUnfollow();
+      } else {
+        makeFollow();
+      }
+    };
+
+
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
@@ -38,6 +50,10 @@ export default function ProfileView() {
       };
       fetchProfileData();
     }, [username]);
+
+    useEffect(() => {
+      getFollow();
+    }, []);
     
 
     if (loading) return <div>Loading...</div>;
@@ -52,8 +68,11 @@ export default function ProfileView() {
       coverImage: profile.cover_image || "/placeholder.svg?height=200&width=600",
       avatar: profile.avatar || '/placeholder.svg?height=150&width=150',
       joinDate: profile.date_joined ? format(new Date(profile.date_joined), 'MMMM yyyy') : "",
-      following: 456,
-      followers: 1234,
+    };
+
+    const userFollowData = {
+      following: followData.following_count,
+      followers: followData.followers_count,
     };
 
     const trendingTopics = [
@@ -110,11 +129,18 @@ export default function ProfileView() {
               </div>
               <div className="mt-20 px-4">
                 <div className="flex justify-end mb-4">
-                  {user && user.username === username && (
-                    <button onClick={handleEditProfile} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-gray-900">
+                  {user && user?.username === username && (
+                    <button onClick={handleEditProfile} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200">
                       Edit profile
                     </button>
                   )}
+                </div>
+                <div className="flex justify-end mb-4">
+                  {user && user?.username != username && (
+                    <button onClick={handleFollow} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200">
+                      {follow ? 'Unfollow' : 'Follow'}
+                    </button>
+                    )}
                 </div>
                 <h2 className="text-2xl font-bold">{userProfile.name}</h2>
                 <p className="text-gray-500">@{userProfile.handle}</p>
@@ -135,11 +161,11 @@ export default function ProfileView() {
                 </div>
                 <div className="flex mt-4">
                   <div className="flex-1 text-center">
-                    <h3 className="text-lg font-bold">{userProfile.following}</h3>
+                    <h3 className="text-lg font-bold">{userFollowData?.following}</h3>
                     <p className="text-gray-500">Following</p>
                   </div>
                   <div className="flex-1 text-center">
-                    <h3 className="text-lg font-bold">{userProfile.followers}</h3>
+                    <h3 className="text-lg font-bold">{userFollowData?.followers}</h3>
                     <p className="text-gray-500">Followers</p>
                   </div>
                 </div>

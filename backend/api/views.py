@@ -6,15 +6,56 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from django.contrib.auth.models import User
-from .serializers import UserSerializer, ProfileSerializer, PostSerializer, CommentSerializer, LikesSerializer
-from .models import Profile, Post, Comment, Likes
+from .serializers import UserSerializer, ProfileSerializer, PostSerializer, CommentSerializer, LikesSerializer, FollowSerializer
+from .models import Profile, Post, Comment, Likes, Follow
 from rest_framework.exceptions import ValidationError, PermissionDenied
+
+
+class FollowView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FollowSerializer
+
+    def get(self, request, username=None):
+        target_user = get_object_or_404(User, username=username) if username else request.user
+        follow, created = Follow.objects.get_or_create(user=request.user, target=target_user)
+        serializer = self.get_serializer(follow, context={'request': request})
+        data = serializer.data
+        
+        # Add is_following field if the requested user is not the current user
+        if target_user != request.user:
+            data['is_following'] = Follow.objects.filter(user=request.user, target=target_user).exists()
+        
+        return Response(data)
+
+    def post(self, request, username):
+        target_user = get_object_or_404(User, username=username)
+        
+        if request.user == target_user:
+            return Response({"error": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        follow, created = Follow.objects.get_or_create(user=request.user, target=target_user)
+        
+        if created:
+            return Response({"message": f"You are now following {username}."}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"message": f"You are already following {username}."}, status=status.HTTP_200_OK)
+
+    def delete(self, request, username):
+        target_user = get_object_or_404(User, username=username)
+        
+        follow = Follow.objects.filter(user=request.user, target=target_user).first()
+        
+        if follow:
+            follow.delete()
+            return Response({"message": f"You have unfollowed {username}."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": f"You are not following {username}."}, status=status.HTTP_400_BAD_REQUEST) 
 
 
 class LikesView(generics.GenericAPIView):
     queryset = Likes.objects.all()
     serializer_class = LikesSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, post_pk):
         post = get_object_or_404(Post, pk=post_pk)

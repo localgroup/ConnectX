@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile, User, Post, Comment, Likes
+from .models import Profile, User, Post, Comment, Likes, Follow
 from django.conf import settings
 from urllib.parse import urljoin
 
@@ -150,3 +150,38 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'post', 'author', 'content', 'created_at', 'updated_at']
         read_only_fields = ['post', 'author', 'created_at', 'updated_at']
 
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(source='user.username')
+    target = serializers.StringRelatedField(source='target.username')
+    followers = serializers.SerializerMethodField()
+    following = serializers.SerializerMethodField()
+    followers_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Follow
+        fields = ['id', 'user', 'target', 'created_at', 'followers', 'following', 'followers_count', 'following_count', 'is_following']
+
+    def get_followers(self, obj):
+        followers = Follow.objects.filter(target=obj.target)
+        return [follow.user.username for follow in followers]
+
+    def get_following(self, obj):
+        following = Follow.objects.filter(user=obj.target)
+        return [follow.target.username for follow in following]
+
+    def get_followers_count(self, obj):
+        return Follow.objects.filter(target=obj.target).count()
+
+    def get_following_count(self, obj):
+        return Follow.objects.filter(user=obj.target).count()
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Follow.objects.filter(user=request.user, target=obj.target).exists()
+        return False
+        

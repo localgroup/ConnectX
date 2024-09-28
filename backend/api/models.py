@@ -90,3 +90,15 @@ class Likes(models.Model):
 
     def __str__(self):
         return f"{self.author.username} liked post {self.post.id}"
+    
+    
+class Follow(models.Model):
+    user = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
+    target = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ('user', 'target')
+
+    def __str__(self):
+        return f"{self.user.username} follows {self.target.username}"
