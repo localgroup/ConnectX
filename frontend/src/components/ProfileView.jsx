@@ -35,15 +35,22 @@ export default function ProfileView() {
       }
     };
 
+    const handleClickFollowing = () => {
+      navigate(`/${username}/following/`);
+    };
+
+    const handleClickFollower = () => {
+      navigate(`/${username}/follower/`);
+    };
 
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
       const fetchProfileData = async () => {
         try {
-          const response = await api.get(`/api/${username}/`);  // Fetch the profile along with posts
+          const response = await api.get(`/api/${username}/`);
           console.log(response.data.posts);
-          setPosts(response.data.posts);  // The posts come from the backend response
+          setPosts(response.data.posts); 
         } catch (err) {
           console.error('Error fetching profile and posts:', err.response?.data || err.message);
         }
@@ -59,20 +66,20 @@ export default function ProfileView() {
     if (loading) return <div>Loading...</div>;
 
     const userProfile = {
-      name: profile.first_name + " " + profile.last_name,
-      handle: profile.username,
-      bio: profile.bio || "",
-      location: profile.location || "",
-      website: profile.website || "",
-      birth_date: profile.birth_date || "",
-      coverImage: profile.cover_image || "/placeholder.svg?height=200&width=600",
-      avatar: profile.avatar || '/placeholder.svg?height=150&width=150',
-      joinDate: profile.date_joined ? format(new Date(profile.date_joined), 'MMMM yyyy') : "",
+      name: profile?.first_name + " " + profile.last_name,
+      handle: profile?.username,
+      bio: profile?.bio || "",
+      location: profile?.location || "",
+      website: profile?.website || "",
+      birth_date: profile?.birth_date || "",
+      coverImage: profile?.cover_image || "/placeholder.svg?height=200&width=600",
+      avatar: profile?.avatar || '/placeholder.svg?height=150&width=150',
+      joinDate: profile?.date_joined ? format(new Date(profile.date_joined), 'MMMM yyyy') : "",
     };
 
     const userFollowData = {
-      following: followData.following_count,
-      followers: followData.followers_count,
+      following: followData?.following_count,
+      followers: followData?.followers_count,
     };
 
     const trendingTopics = [
@@ -106,9 +113,9 @@ export default function ProfileView() {
               </button>
             </div>
             <div className="mb-4 flex items-center space-x-3">
-              <img src={userProfile.avatar} alt="Profile" className="w-10 h-10 rounded-full" />
+              <img src={userProfile?.avatar} alt="Profile" className="w-10 h-10 rounded-full" />
               <div className="hidden xl:block">
-                <h3 className="font-bold">{userProfile.name}</h3>
+                <h3 className="font-bold">{userProfile?.name}</h3>
                 <p className="text-gray-500">@{userProfile.handle}</p>
               </div>
             </div>
@@ -118,14 +125,14 @@ export default function ProfileView() {
           <main className="flex-1 border-x border-gray-800">
             <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800 flex items-center space-x-4">
               <div>
-                <h1 className="text-xl font-bold">{userProfile.name}</h1>
-                <p className="text-sm text-gray-500">{posts.length} posts</p>
+                <h1 className="text-xl font-bold">{userProfile?.name}</h1>
+                <p className="text-sm text-gray-500">{posts?.length} posts</p>
               </div>
             </header>
             <div>
               <div className="h-48 bg-gray-800 relative">
-                <img src={userProfile.coverImage} alt="Cover" className="w-full h-full object-cover" />
-                <img src={userProfile.avatar} alt={userProfile.name} className="absolute -bottom-16 left-4 w-32 h-32 rounded-full border-4 border-black" />
+                <img src={userProfile?.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                <img src={userProfile?.avatar} alt={userProfile?.name} className="absolute -bottom-16 left-4 w-32 h-32 rounded-full border-4 border-black" />
               </div>
               <div className="mt-20 px-4">
                 <div className="flex justify-end mb-4">
@@ -142,46 +149,50 @@ export default function ProfileView() {
                     </button>
                     )}
                 </div>
-                <h2 className="text-2xl font-bold">{userProfile.name}</h2>
-                <p className="text-gray-500">@{userProfile.handle}</p>
-                <p className="mt-3">{userProfile.bio}</p>
+                <h2 className="text-2xl font-bold">{userProfile?.name}</h2>
+                <p className="text-gray-500">@{userProfile?.handle}</p>
+                <p className="mt-3">{userProfile?.bio}</p>
                 <div className="flex flex-wrap mt-3 text-gray-500">
                   <span className="flex items-center mr-4">
                     <MapPin className="h-5 w-5 mr-1" />
-                    {userProfile.location}
+                    {userProfile?.location}
                   </span>
                   <span className="flex items-center mr-4">
                     <Link className="h-5 w-5 mr-1" />
-                    <a href={userProfile.website} className="text-primary hover:underline">{userProfile.website}</a>
+                    <a href={userProfile?.website} className="text-primary hover:underline">{userProfile?.website}</a>
                   </span>
                   <span className="flex items-center">
                     <Calendar className="h-5 w-5 mr-1" />
-                    Joined {userProfile.joinDate}
+                    Joined {userProfile?.joinDate}
                   </span>
                 </div>
                 <div className="flex mt-4">
                   <div className="flex-1 text-center">
                     <h3 className="text-lg font-bold">{userFollowData?.following}</h3>
-                    <p className="text-gray-500">Following</p>
+                    <p className="text-white-600 hover:text-blue-900 text-underline">
+                      <a onClick={handleClickFollower} className="cursor-pointer" >Followers</a>
+                    </p>
                   </div>
                   <div className="flex-1 text-center">
                     <h3 className="text-lg font-bold">{userFollowData?.followers}</h3>
-                    <p className="text-gray-500">Followers</p>
+                    <p className="text-white-600 hover:text-blue-900 text-underline">
+                      <a onClick={handleClickFollowing} className="cursor-pointer" >Following</a>
+                    </p>
                   </div>
                 </div>
               </div>
               <div className="mt-8">
               {posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((post) => (
                       <Post
-                      key={post.id}
-                      postId={post.id}
-                      avatar={post.author_avatar}
-                      username={post.author}
-                      handle={post.author}
-                      content={post.body}
-                      media={post.media}
-                      created_at={post.created_at}
-                      commentsCount={post.number_of_comments}
+                      key={post?.id}
+                      postId={post?.id}
+                      avatar={post?.author_avatar}
+                      username={post?.author}
+                      handle={post?.author}
+                      content={post?.body}
+                      media={post?.media}
+                      created_at={post?.created_at}
+                      commentsCount={post?.number_of_comments}
                   />
                 ))}
               </div>

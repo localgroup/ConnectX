@@ -102,8 +102,8 @@ export default function PostDetailView() {
                 <div className="hidden xl:block">
                     {profile ? (
                     <>
-                        <h3 className="font-bold">{profile.first_name + " " + profile.last_name}</h3>
-                        <p className="text-gray-500">@{profile.username}</p>
+                        <h3 className="font-bold">{profile?.first_name + " " + profile?.last_name}</h3>
+                        <p className="text-gray-500">@{profile?.username}</p>
                     </>
                     ) : (
                     <p>Loading user...</p>
@@ -115,8 +115,8 @@ export default function PostDetailView() {
             {/* Main Content */}
             <main className="flex-1 border-x border-gray-800">
                 <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800">
-                <button className="rounded-full p-2 hover:bg-gray-800">
-                <ArrowLeft onClick={arrowLeft} className="h-5 w-5" />
+                <button onClick={arrowLeft} className="rounded-full p-2 hover:bg-gray-800">
+                    <ArrowLeft className="h-5 w-5" />
                 </button>
                 <h1 className="text-xl font-bold">Post</h1>
             </header>
@@ -188,11 +188,11 @@ export default function PostDetailView() {
                     <div>
                         {Array.isArray(comment) && comment.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((comm) => (
                             <Comment 
-                                key={comm.id}
-                                commentId={comm.id}
-                                author={comm.author}
-                                content={comm.content}
-                                created_at={comm.created_at}
+                                key={comm?.id}
+                                commentId={comm?.id}
+                                author={comm?.author}
+                                content={comm?.content}
+                                created_at={comm?.created_at}
                             />
                         ))}
                     </div>

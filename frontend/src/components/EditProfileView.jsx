@@ -35,15 +35,15 @@ export default function EditProfileView() {
     useEffect(() => {
       if (profile) {
         setFormData({
-          first_name: profile.first_name || "",
-          last_name: profile.last_name || "",
-          username: profile.username || "",
-          bio: profile.bio || "",
-          location: profile.location || "",
-          website: profile.website || "",
-          birth_date: profile.birth_date || "",
-          cover_image: profile.cover_image || "",
-          avatar: profile.avatar || ""
+          first_name: profile?.first_name || "",
+          last_name: profile?.last_name || "",
+          username: profile?.username || "",
+          bio: profile?.bio || "",
+          location: profile?.location || "",
+          website: profile?.website || "",
+          birth_date: profile?.birth_date || "",
+          cover_image: profile?.cover_image || "",
+          avatar: profile?.avatar || ""
         });
       }
     }, [profile]);
@@ -84,7 +84,7 @@ export default function EditProfileView() {
       });
 
       try {
-        const updatedProfile = await updateProfile(profile.username, form);
+        const updatedProfile = await updateProfile(profile?.username, form);
         console.log("Profile updated successfully:", updatedProfile);
         alert("Profile updated successfully!");
         // Redirect to the profile page
@@ -107,8 +107,8 @@ export default function EditProfileView() {
           <main className="flex-1 border-x border-gray-800">
               <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800 flex items-center space-x-4">
               <div className="flex items-center space-x-4">
-                <button className="rounded-full p-2 hover:bg-gray-800">
-                  <ArrowLeft onClick={arrowLeft} className="h-5 w-5" />
+                <button onClick={arrowLeft} className="rounded-full p-2 hover:bg-gray-800">
+                  <ArrowLeft className="h-5 w-5" />
                 </button>
                 <h1 className="text-xl font-bold">Edit profile</h1>
               </div>
@@ -121,14 +121,14 @@ export default function EditProfileView() {
             </header>
             <form onSubmit={handleSubmit} className="p-4">
               <div className="relative mb-6">
-                <img src={formData.cover_image} alt="Cover" className="w-full h-48 object-cover" />
+                <img src={formData?.cover_image} alt="Cover" className="w-full h-48 object-cover" />
                 <label htmlFor="cover_image" className="absolute top-2 right-2 bg-black bg-opacity-60 rounded-full p-2 cursor-pointer">
                   <Camera className="h-5 w-5" />
                   <input type="file" id="cover_image" name="cover_image" onChange={handleFileChange} className="hidden" />
                 </label>
               </div>
               <div className="relative mb-6">
-                <img src={formData.avatar} alt={formData.first_name} className="w-32 h-32 rounded-full border-4 border-black absolute -top-16 left-4" />
+                <img src={formData?.avatar} alt={formData?.first_name} className="w-32 h-32 rounded-full border-4 border-black absolute -top-16 left-4" />
                 <label htmlFor="avatar" className="absolute top-0 left-24 bg-black bg-opacity-60 rounded-full p-2 cursor-pointer">
                   <Camera className="h-5 w-5" />
                   <input type="file" id="avatar" name="avatar" onChange={handleFileChange} className="hidden" />
@@ -141,7 +141,7 @@ export default function EditProfileView() {
                     type="text"
                     id="first_name"
                     name="first_name"
-                    value={formData.first_name}
+                    value={formData?.first_name}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                   />
@@ -152,7 +152,7 @@ export default function EditProfileView() {
                     type="text"
                     id="last_name"
                     name="last_name"
-                    value={formData.last_name}
+                    value={formData?.last_name}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                   />
@@ -163,7 +163,7 @@ export default function EditProfileView() {
                     type="text"
                     id="username"
                     name="username"
-                    value={formData.username}
+                    value={formData?.username}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                   />
@@ -174,7 +174,7 @@ export default function EditProfileView() {
                     id="bio"
                     name="bio"
                     rows="3"
-                    value={formData.bio}
+                    value={formData?.bio}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                   ></textarea>
@@ -185,7 +185,7 @@ export default function EditProfileView() {
                     type="text"
                     id="location"
                     name="location"
-                    value={formData.location}
+                    value={formData?.location}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                   />
@@ -196,7 +196,7 @@ export default function EditProfileView() {
                     type="url"
                     id="website"
                     name="website"
-                    value={formData.website}
+                    value={formData?.website}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                   />
@@ -207,7 +207,7 @@ export default function EditProfileView() {
                     type="date"
                     id="birth_date"
                     name="birth_date"
-                    value={formData.birth_date}
+                    value={formData?.birth_date}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md bg-gray-800 border-gray-700 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                   />

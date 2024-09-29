@@ -78,7 +78,7 @@ export default function HomeView() {
       try {
         const response = await api.post("/api/posts/", formData, {
           headers: {
-            "Content-Type": "multipart/form-data", // This can stay as file uploads require multipart encoding
+            "Content-Type": "multipart/form-data", 
           },
         });
     
@@ -124,7 +124,7 @@ export default function HomeView() {
                 <NavItem Icon={User} text="Profile" to={`/${user?.username}`} />
                 <NavItem Icon={LogOutIcon} text="LogOut" to="/logout/" />
               </nav>
-              <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
+              <button onClick={expandButton} className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
                 Post
               </button>
               <button className="mt-8 bg-primary text-white rounded-full p-3 font-bold xl:hidden hover:bg-primary/90 transition duration-200">
@@ -136,8 +136,8 @@ export default function HomeView() {
               <div className="hidden xl:block">
                 {profile ? (
                   <>
-                    <h3 className="font-bold">{profile.first_name + " " + profile.last_name}</h3>
-                    <p className="text-gray-500">@{profile.username}</p>
+                    <h3 className="font-bold">{profile?.first_name + " " + profile?.last_name}</h3>
+                    <p className="text-gray-500">@{profile?.username}</p>
                   </>
                 ) : (
                   <p>Loading user...</p>
@@ -152,56 +152,81 @@ export default function HomeView() {
               <h1 className="text-xl font-bold">Your Feed</h1>
             </header>
             <div className="p-4 border-b border-gray-800">
+
               {/* Post creation form */}
               <form onSubmit={makePost} encType="multipart/form-data">
-                <div onClick={expandButton} className="flex space-x-4">
+                <div onClick={!expanded ? expandButton : undefined} className="flex space-x-4 cursor-pointer">
                   <img src={profile?.avatar} alt={profile?.username} className="w-12 h-12 rounded-full" />
-                  { expanded && (<div className="flex-1">
-                    <textarea
-                      className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none"
-                      placeholder="What's happening?"
-                      rows="7"
-                      name="body"
-                      value={postData.body || ""}
-                      onChange={handleChange} // Handle text input
-                      required
-                      maxLength={240}
-                    />
-                    <p>{240 - postData.body.length} characters remaining</p>
-                    <div className="relative mb-6">
-                      {postData.media && (
-                        <img src={URL.createObjectURL(postData.media)} alt="Media" className="image-upload" />
-                      )}
-                      <label htmlFor="media" className="absolute top-2 right-2 bg-black bg-opacity-60 rounded-full p-2 cursor-pointer">
-                        <Camera className="h-5 w-5" />
-                        <input type="file" id="media" name="media" onChange={handleFileChange} className="hidden" />
-                      </label>
+                  
+                  {!expanded && (
+                      <>
+                        <div className="flex-1 bg-gray-800 p-3 rounded-lg text-gray-500">
+                          What&apos;s happening?
+                        </div>
+                        <div className="flex justify-between items-center mt-4">
+                          <button
+                            type="submit"
+                            className="bg-gray-500 text-white rounded-full px-4 py-2 font-bold bg-primary cursor-not-allowed"
+                            disabled
+                          >
+                            Post
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                  {expanded && (
+                    <div className="flex-1">
+                      <textarea
+                        className="w-full bg-transparent text-xl placeholder-gray-500 focus:outline-none resize-none"
+                        placeholder="What's happening?"
+                        rows={7}
+                        name="body"
+                        value={postData?.body || ""}
+                        onChange={handleChange}
+                        required
+                        maxLength={240}
+                        autoFocus={expanded}
+                      />
+                      <p>{240 - postData?.body.length} characters remaining</p>
+                      
+                      {/* Media upload section */}
+                      <div className="relative mb-6">
+                        {postData?.media && (
+                          <img src={URL.createObjectURL(postData?.media)} alt="Media" className="image-upload" />
+                        )}
+                        <label htmlFor="media" className="absolute top-2 right-2 bg-black bg-opacity-60 rounded-full p-2 cursor-pointer">
+                          <Camera className="h-5 w-5" />
+                          <input type="file" id="media" name="media" onChange={handleFileChange} className="hidden" />
+                        </label>
+                      </div>
+
+                      {/* Submit button */}
+                      <div className="flex justify-between items-center mt-4">
+                        <button
+                          type="submit"
+                          className="bg-primary text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200"
+                        >
+                          Post
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <button
-                        type="submit"
-                        className="bg-primary text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200"
-                      >
-                        Post
-                      </button>
-                    </div>
-                  </div>)
-                    }
+                  )}
                 </div>
               </form>
             </div>
             <div>
               {posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((post) => (
                       <Post
-                      key={post.id}
-                      postId={post.id}
-                      avatar={post.author_avatar}
-                      username={post.author}
-                      handle={post.author}
-                      content={post.body}
-                      media={post.media}
-                      created_at={post.created_at}
-                      commentsCount={post.number_of_comments}
+                      key={post?.id}
+                      postId={post?.id}
+                      avatar={post?.author_avatar}
+                      username={post?.author}
+                      handle={post?.author}
+                      content={post?.body}
+                      media={post?.media}
+                      created_at={post?.created_at}
+                      commentsCount={post?.number_of_comments}
                   />
                 ))}
             </div>
@@ -210,7 +235,7 @@ export default function HomeView() {
           {/* Right Sidebar */}
           <aside className="w-80 h-screen sticky top-0 p-4 hidden lg:block">
             <div className="bg-gray-900 rounded-2xl p-4 mb-4">
-              <h2 className="text-xl font-bold mb-4">What's happening</h2>
+              <h2 className="text-xl font-bold mb-4">What&apos;s happening</h2>
               {trendingTopics.map((topic, index) => (
                 <TrendingTopic key={index} {...topic} />
               ))}

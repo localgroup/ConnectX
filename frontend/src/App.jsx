@@ -9,6 +9,8 @@ import ViewPost from "./pages/ViewPost";
 import './index.css';
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./pages/EditProfile";
+import Following from "./pages/Following";
+import Follower from "./pages/Follower";
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/useAuth';
 
@@ -34,6 +36,8 @@ function App() {
           <Route path="/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/:username/update-profile/" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />          
           <Route path="/posts/:postId/" element={<ProtectedRoute><ViewPost /></ProtectedRoute>} />          
+          <Route path="/:username/follower/" element={<ProtectedRoute><Follower /></ProtectedRoute>} />          
+          <Route path="/:username/following/" element={<ProtectedRoute><Following /></ProtectedRoute>} />          
 
         </Routes>
       </BrowserRouter>
