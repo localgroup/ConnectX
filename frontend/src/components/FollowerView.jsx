@@ -25,15 +25,6 @@ export default function FollowersView() {
 
     const { follower, followerData, getFollower } = useFollower(username);
     const { follow, followData, getFollow, makeFollow, makeUnfollow } = useFollow(username);
-    
-    
-    function handleFollow() {
-      if (follow) {
-        makeUnfollow();
-      } else {
-        makeFollow();
-      }
-    };
 
     useEffect(() => {
       getFollower();
@@ -110,12 +101,12 @@ export default function FollowersView() {
           <div className="p-4">
             <h2 className="text-xl font-bold mb-4">{user.followersCount} Followers</h2>
             <div className="space-y-4">
-              {followerData?.map((followers) => (
+              {followerData?.followers?.map((follower, index) => (
                 <FollowerItem
-                  key={followers?.id}
-                  name={followers?.target}
-                  handle={followers?.target}
-                  isFollowing={followers?.is_following}
+                  key={index}
+                  handle={follower.username}
+                  bio={follower.bio}
+                  isFollowing={followerData.is_following}
                 />
               ))}
             </div>

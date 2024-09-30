@@ -13,7 +13,7 @@ export default function useFollower(username) {
         try {
         const response = await api.get(`/api/${username}/follower/`);
         console.log(response.data);
-        setFollowerData(response.data.followers);
+        setFollowerData(response.data);
         setFollower(response.data.is_following);
         setLoading(false);
         } catch (err) {

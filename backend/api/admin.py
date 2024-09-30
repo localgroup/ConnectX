@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Profile, Post
+from .models import Profile, Post, Likes, Follow, Comment
 from dateutil.parser import parse
 
 
@@ -52,3 +52,9 @@ class ProfileAdmin(admin.ModelAdmin):
     
     
 admin.site.register(Post)
+
+admin.site.register(Likes)
+
+admin.site.register(Comment)
+
+admin.site.register(Follow)

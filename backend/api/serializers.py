@@ -151,7 +151,6 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ['post', 'author', 'created_at', 'updated_at']
 
 
-
 class FollowSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(source='user.username')
     target = serializers.StringRelatedField(source='target.username')
@@ -167,11 +166,27 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_followers(self, obj):
         followers = Follow.objects.filter(target=obj.target)
-        return [follow.user.username for follow in followers]
+        request = self.context.get('request')
+        return [
+            {
+                'username': follow.user.username, 
+                'bio': follow.user.profile.bio,
+                'is_following': Follow.objects.filter(user=request.user, target=follow.user).exists() if request and request.user.is_authenticated else False
+            } 
+            for follow in followers
+        ]
 
     def get_following(self, obj):
         following = Follow.objects.filter(user=obj.target)
-        return [follow.target.username for follow in following]
+        request = self.context.get('request')
+        return [
+            {
+                'username': follow.target.username, 
+                'bio': follow.target.profile.bio,
+                'is_following': Follow.objects.filter(user=request.user, target=follow.target).exists() if request and request.user.is_authenticated else False
+            } 
+            for follow in following
+        ]
 
     def get_followers_count(self, obj):
         return Follow.objects.filter(target=obj.target).count()
@@ -184,4 +199,16 @@ class FollowSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return Follow.objects.filter(user=request.user, target=obj.target).exists()
         return False
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance is None:
+            data = {
+                'followers': [],
+                'following': [],
+                'followers_count': 0,
+                'following_count': 0,
+                'is_following': False
+            }
+        return data
         

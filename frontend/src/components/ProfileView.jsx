@@ -24,6 +24,7 @@ export default function ProfileView() {
 
     const navigate = useNavigate();  
     const { profile, loading } = useProfile(username);
+    const { profile: loggedUser } = useProfile(user?.username);
 
     const { follow, followData, getFollow, makeFollow, makeUnfollow, error } = useFollow(username);
 
@@ -113,10 +114,10 @@ export default function ProfileView() {
               </button>
             </div>
             <div className="mb-4 flex items-center space-x-3">
-              <img src={userProfile?.avatar} alt="Profile" className="w-10 h-10 rounded-full" />
+              <img src={loggedUser?.avatar} alt="Profile" className="w-10 h-10 rounded-full" />
               <div className="hidden xl:block">
-                <h3 className="font-bold">{userProfile?.name}</h3>
-                <p className="text-gray-500">@{userProfile.handle}</p>
+                <h3 className="font-bold">{loggedUser?.first_name + " " + loggedUser?.last_name}</h3>
+                <p className="text-gray-500">@{loggedUser?.username}</p>
               </div>
             </div>
           </aside>

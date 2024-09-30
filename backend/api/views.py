@@ -17,15 +17,14 @@ class FollowView(generics.GenericAPIView):
 
     def get(self, request, username=None):
         target_user = get_object_or_404(User, username=username) if username else request.user
-        follow, created = Follow.objects.get_or_create(user=request.user, target=target_user)
+        follow = Follow.objects.filter(user=request.user, target=target_user).first()
+        
+        if follow is None:
+            # Create a dummy follow object to get the counts
+            follow = Follow(user=request.user, target=target_user)
+        
         serializer = self.get_serializer(follow, context={'request': request})
-        data = serializer.data
-        
-        # Add is_following field if the requested user is not the current user
-        if target_user != request.user:
-            data['is_following'] = Follow.objects.filter(user=request.user, target=target_user).exists()
-        
-        return Response(data)
+        return Response(serializer.data)
 
     def post(self, request, username):
         target_user = get_object_or_404(User, username=username)
@@ -35,10 +34,8 @@ class FollowView(generics.GenericAPIView):
         
         follow, created = Follow.objects.get_or_create(user=request.user, target=target_user)
         
-        if created:
-            return Response({"message": f"You are now following {username}."}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"message": f"You are already following {username}."}, status=status.HTTP_200_OK)
+        serializer = self.get_serializer(follow, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
     def delete(self, request, username):
         target_user = get_object_or_404(User, username=username)
@@ -47,10 +44,12 @@ class FollowView(generics.GenericAPIView):
         
         if follow:
             follow.delete()
-            return Response({"message": f"You have unfollowed {username}."}, status=status.HTTP_200_OK)
+            # Create a dummy follow object to get the updated counts
+            dummy_follow = Follow(user=request.user, target=target_user)
+            serializer = self.get_serializer(dummy_follow, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response({"error": f"You are not following {username}."}, status=status.HTTP_400_BAD_REQUEST) 
-
+            return Response({"error": f"You are not following {username}."}, status=status.HTTP_400_BAD_REQUEST)
 
 class LikesView(generics.GenericAPIView):
     queryset = Likes.objects.all()
