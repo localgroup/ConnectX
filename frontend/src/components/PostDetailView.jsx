@@ -174,7 +174,7 @@ export default function PostDetailView() {
                     </div>
                     <button 
                         type="submit"
-                        className="bg-primary text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200"
+                        className="bg-primary cursor-pointer text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200"
                         disabled={!newComment.trim()}
                     >
                         Reply

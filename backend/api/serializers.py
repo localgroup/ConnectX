@@ -38,30 +38,32 @@ class ProfileSerializer(serializers.ModelSerializer):
         return instance
 
 
-
 class UserSerializer(serializers.ModelSerializer):
-    # profile = ProfileSerializer(source='profile', read_only=True)   # Retrieve the Profile instance.
-    profile = ProfileSerializer(read_only=True)   # Retrieve the Profile instance.
-    
+    profile = ProfileSerializer(read_only=True)
+    first_name = serializers.CharField(write_only=True)
+    last_name = serializers.CharField(write_only=True)
+
     class Meta:
-        model = User   # Use User model.
-        fields = ["id", "email", "username", "password", "profile"]
+        model = User
+        fields = ["id", "email", "username", "password", "first_name", "last_name", "profile"]
         extra_kwargs = {"password": {"write_only": True}}
 
-    # Validate email.
-    def validate_email(self, value):   
+    def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("A user with this email already exists.")
         return value
 
-    # Create the user with the validated data recieved.
     def create(self, validated_data):
         password = validated_data.pop('password')
+        first_name = validated_data.pop('first_name', '')
+        last_name = validated_data.pop('last_name', '')
+        
         user = User(**validated_data)
         user.set_password(password)
+        user.first_name = first_name
+        user.last_name = last_name
         user.save()
         
-        # Create or update the profile for the user.
         profile, created = Profile.objects.get_or_create(user=user)
         if created:
             profile.email = user.email
@@ -89,7 +91,7 @@ class PostSerializer(serializers.ModelSerializer):
             avatar_url = obj.author.profile.avatar.url
             return request.build_absolute_uri(avatar_url)
         else:
-            return None  # or a default avatar URL
+            return None
 
     def get_number_of_likes(self, obj):
         return obj.likes.count()
@@ -169,6 +171,7 @@ class FollowSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return [
             {
+                'id': follow.user.id,
                 'username': follow.user.username, 
                 'bio': follow.user.profile.bio,
                 'is_following': Follow.objects.filter(user=request.user, target=follow.user).exists() if request and request.user.is_authenticated else False
@@ -181,6 +184,7 @@ class FollowSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return [
             {
+                'id': follow.target.id,
                 'username': follow.target.username, 
                 'bio': follow.target.profile.bio,
                 'is_following': Follow.objects.filter(user=request.user, target=follow.target).exists() if request and request.user.is_authenticated else False

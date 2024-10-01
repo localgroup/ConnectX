@@ -51,6 +51,7 @@ class FollowView(generics.GenericAPIView):
         else:
             return Response({"error": f"You are not following {username}."}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class LikesView(generics.GenericAPIView):
     queryset = Likes.objects.all()
     serializer_class = LikesSerializer
@@ -209,11 +210,22 @@ class UpdateProfileView(generics.UpdateAPIView):
         return Response(serializer.data)
 
 
-# Create a new user.
+# Register a new User.
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_create(self, serializer):
+        serializer.save()
 
 
 class WelcomeView(generics.GenericAPIView):

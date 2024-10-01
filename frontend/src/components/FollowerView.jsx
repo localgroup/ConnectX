@@ -76,7 +76,7 @@ export default function FollowersView() {
               <img src={userProfile?.avatar} alt="Profile" className="w-10 h-10 rounded-full" />
               <div className="hidden xl:block">
                 <h3 className="font-bold">{userProfile?.name}</h3>
-                <p className="text-gray-500">@{userProfile.handle}</p>
+                <p className="text-gray-500">@{userProfile?.handle}</p>
               </div>
             </div>
           </aside>
@@ -89,24 +89,23 @@ export default function FollowersView() {
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div>
-                <h1 className="text-xl font-bold">{userTargetProfile.name}</h1>
-                <p className="text-sm text-gray-500">@{userTargetProfile.handle}</p>
+                <h1 className="text-xl font-bold">{userTargetProfile?.name}</h1>
+                <p className="text-sm text-gray-500">@{userTargetProfile?.handle}</p>
               </div>
             </div>
           </header>
           <nav className="flex border-b border-gray-800">
             <a href="" className="flex-1 text-center py-4 hover:bg-gray-900">Followers</a>
-            {/* <a href="#" className="flex-1 text-center py-4 hover:bg-gray-900 text-gray-500">Following</a> */}
-          </nav>
+            </nav>
           <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">{user.followersCount} Followers</h2>
+            <h2 className="text-xl font-bold mb-4">{followerData?.followers_count} Followers</h2>
             <div className="space-y-4">
-              {followerData?.followers?.map((follower, index) => (
+              {followerData?.followers?.map((follower) => (
                 <FollowerItem
-                  key={index}
-                  handle={follower.username}
-                  bio={follower.bio}
-                  isFollowing={followerData.is_following}
+                  key={follower?.id}
+                  handle={follower?.username}
+                  bio={follower?.bio}
+                  isFollowing={followerData?.is_following}
                 />
               ))}
             </div>

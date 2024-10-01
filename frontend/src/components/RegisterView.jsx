@@ -19,8 +19,8 @@
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
       email: '',
-      firstName: '',
-      lastName: '',
+      first_name: '',
+      last_name: '',
       username: '',
       password: '',
     });
@@ -37,8 +37,8 @@
 
     const validateForm = () => {
       let errors = {};
-      if (!formData.firstName.trim()) errors.firstName = "First Name is required";
-      if (!formData.lastName.trim()) errors.lastName = "Last Name is required";
+      if (!formData.first_name.trim()) errors.first_name = "First Name is required";
+      if (!formData.last_name.trim()) errors.last_name = "Last Name is required";
       if (!formData.username.trim()) errors.username = "Username is required";
       if (!formData.email.trim()) errors.email = "Email is required";
       else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email is invalid";
@@ -100,31 +100,31 @@
                 {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
               </div>
               <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium mb-2">First Name</label>
+                  <label htmlFor="first_name" className="block text-sm font-medium mb-2">First Name</label>
                   <input
                       type="text"
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
+                      id="first_name"
+                      name="first_name"
+                      value={formData.first_name}
                       onChange={handleChange}
                       className="w-full px-3 py-2 bg-black border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="Enter your first name"
                   />
-                  {errors.firstName && <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>}
+                  {errors.first_name && <p className="mt-1 text-xs text-red-500">{errors.first_name}</p>}
                   </div>
 
                   <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium mb-2">Last Name</label>
+                  <label htmlFor="last_name" className="block text-sm font-medium mb-2">Last Name</label>
                   <input
                       type="text"
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
+                      id="last_name"
+                      name="last_name"
+                      value={formData.last_name}
                       onChange={handleChange}
                       className="w-full px-3 py-2 bg-black border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="Enter your last name"
                   />
-                  {errors.lastName && <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>}
+                  {errors.last_name && <p className="mt-1 text-xs text-red-500">{errors.last_name}</p>}
                   </div>
 
               <div>

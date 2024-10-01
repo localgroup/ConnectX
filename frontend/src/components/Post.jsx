@@ -36,17 +36,19 @@ export default function Post({ avatar, username, handle, content, media, created
         <div className="flex space-x-3">
           <img src={avatar} alt={username} className="w-12 h-12 rounded-full" />
           <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-bold">{authorName}</h3>
-              <span className="text-gray-500">@{handle}</span>
+            <div className="cursor-pointer" onClick={() => getDetailPost(postId)} >
+              <div className="flex items-center space-x-2">
+                <h3 className="font-bold">{authorName}</h3>
+                <span className="text-gray-500">@{handle}</span>
+              </div>
+              <div>
+                <p className="mt-2 mb-3">{content}</p>
+                {media && (
+                  <img src={media} alt="Post media" className="w-full mb-3" />
+                )}
+              </div>
+              <p className="text-gray-500 text-sm">{formattedDate}</p>
             </div>
-            <div onClick={() => getDetailPost(postId)} >
-              <p className="mt-2 mb-3">{content}</p>
-              {media && (
-                <img src={media} alt="Post media" className="w-full mb-3" />
-              )}
-            </div>
-            <p className="text-gray-500 text-sm">{formattedDate}</p>
             <div className="flex justify-between text-gray-500">
               <button onClick={() => getDetailPost(postId)} className="flex items-center space-x-2 hover:text-primary">
                 <MessageCircle className="h-5 w-5" />

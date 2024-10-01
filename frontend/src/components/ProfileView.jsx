@@ -27,6 +27,7 @@ export default function ProfileView() {
     const { profile: loggedUser } = useProfile(user?.username);
 
     const { follow, followData, getFollow, makeFollow, makeUnfollow, error } = useFollow(username);
+    const { follower, followerData, getFollower } = useFollow(username);
 
     function handleFollow() {
       if (follow) {
@@ -169,13 +170,13 @@ export default function ProfileView() {
                 </div>
                 <div className="flex mt-4">
                   <div className="flex-1 text-center">
-                    <h3 className="text-lg font-bold">{userFollowData?.following}</h3>
+                    <h3 className="text-lg font-bold">{userFollowData?.followers}</h3>
                     <p className="text-white-600 hover:text-blue-900 text-underline">
                       <a onClick={handleClickFollower} className="cursor-pointer" >Followers</a>
                     </p>
                   </div>
                   <div className="flex-1 text-center">
-                    <h3 className="text-lg font-bold">{userFollowData?.followers}</h3>
+                    <h3 className="text-lg font-bold">{userFollowData?.following}</h3>
                     <p className="text-white-600 hover:text-blue-900 text-underline">
                       <a onClick={handleClickFollowing} className="cursor-pointer" >Following</a>
                     </p>
