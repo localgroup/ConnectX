@@ -27,6 +27,11 @@ export default function Post({ avatar, username, handle, content, media, created
       await toggleLike();
     };
 
+    function handleShare() {
+      navigator.clipboard.writeText(window.location.origin + `/posts/${postId}/`);
+      alert("Link copied.");
+    };
+
     const getDetailPost = (postId) => {
       navigate(`/posts/${postId}/`);
     };
@@ -62,7 +67,10 @@ export default function Post({ avatar, username, handle, content, media, created
                 <Heart className={`h-5 w-5 ${isLiked ? 'text-red-500' : ''}`} />
                 <span>{likesCount}</span>
               </button>
-              <button className="flex items-center space-x-2 hover:text-primary">
+              <button
+                onClick={handleShare}
+                className="flex items-center space-x-2 hover:text-primary"
+              >
                 <Share className="h-5 w-5" />
               </button>
             </div>

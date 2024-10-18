@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import ViewPost from "./pages/ViewPost";
+import Search from "./pages/Search";
 import './index.css';
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./pages/EditProfile";
@@ -38,6 +39,7 @@ function App() {
           <Route path="/posts/:postId/" element={<ProtectedRoute><ViewPost /></ProtectedRoute>} />          
           <Route path="/:username/follower/" element={<ProtectedRoute><Follower /></ProtectedRoute>} />          
           <Route path="/:username/following/" element={<ProtectedRoute><Following /></ProtectedRoute>} />          
+          <Route path="/search/" element={<ProtectedRoute><Search /></ProtectedRoute>} />          
 
         </Routes>
       </BrowserRouter>

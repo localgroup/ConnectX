@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.core.validators import FileExtensionValidator
 from django.utils import timezone
 import pytz
+from django.db.models import Q
 
 
 class Profile(models.Model):
@@ -102,3 +103,17 @@ class Follow(models.Model):
 
     def __str__(self):
         return f"{self.user.username} follows {self.target.username}"
+    
+    
+class SearchQuery:
+    def __init__(self, query):
+        self.query = query
+
+    def get_relevant_posts(self):
+        return Post.objects.filter(body__icontains=self.query)
+
+    def get_relevant_profiles(self):
+        return Profile.objects.filter(
+            Q(user__username__icontains=self.query) | 
+            Q(bio__icontains=self.query)
+        )

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile, User, Post, Comment, Likes, Follow
+from .models import Profile, User, Post, Comment, Likes, Follow, SearchQuery
 from django.conf import settings
 from urllib.parse import urljoin
 
@@ -214,5 +214,18 @@ class FollowSerializer(serializers.ModelSerializer):
                 'following_count': 0,
                 'is_following': False
             }
-        return data
+        return data      
         
+        
+class SearchQuerySerializer(serializers.Serializer):
+    query = serializers.CharField(max_length=255)
+    results = serializers.SerializerMethodField()
+
+    def get_results(self, obj):
+        posts = obj.get_relevant_posts()
+        profiles = obj.get_relevant_profiles()
+
+        return {
+            'posts': PostSerializer(posts, many=True, context=self.context).data,
+            'profiles': ProfileSerializer(profiles, many=True, context=self.context).data
+        }

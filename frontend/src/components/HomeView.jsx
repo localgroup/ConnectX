@@ -118,7 +118,7 @@ export default function HomeView() {
               <ConnectXLogo />
               <nav className="mt-8 space-y-4">
                 <NavItem Icon={Home} text="Home" to="/home/" />
-                <NavItem Icon={Search} text="Explore" />
+                <NavItem Icon={Search} text="Explore" to="/search/" />
                 <NavItem Icon={Bell} text="Notifications" />
                 <NavItem Icon={Mail} text="Messages" />
                 <NavItem Icon={User} text="Profile" to={`/${user?.username}`} />
