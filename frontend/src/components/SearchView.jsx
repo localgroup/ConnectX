@@ -42,7 +42,7 @@ export default function SearchView() {
         case 'people':
           return searchResults.profiles?.map(profile => ({
             type: 'user',
-            author: `${profile?.first_name} ${profile?.last_name}`.trim(),
+            authorUser: `${profile?.username}`,
             avatar: profile?.avatar || "/placeholder.svg?height=40&width=40",
             handle: profile?.username,
             bio: profile?.bio
@@ -54,6 +54,7 @@ export default function SearchView() {
         default:
           return searchResults.posts?.map(post => ({
             type: 'post',
+            id: post.id,
             content: post.body,
             author: post.author,
             handle: post.author,

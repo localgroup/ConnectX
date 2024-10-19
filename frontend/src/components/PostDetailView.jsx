@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Home, Bell, Mail, User, Search, LogOutIcon, ArrowLeft, MessageCircle, Trash2, Heart, MoreVertical } from 'lucide-react';
+import { X, Home, Bell, Mail, User, Search, LogOutIcon, ArrowLeft, MessageCircle, Trash2, Heart, Share } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import useProfile from '../hooks/useProfile';
@@ -23,6 +23,7 @@ export default function PostDetailView() {
 
     const { profile: postAuthorProfile } = useProfile(post?.author);
     const authorName = postAuthorProfile?.first_name + " " + postAuthorProfile?.last_name;
+    const authorUsername = postAuthorProfile?.username;
 
     const date = new Date(post?.created_at);
     const formattedDate = date.toLocaleString('en-US', {
@@ -46,6 +47,15 @@ export default function PostDetailView() {
         getPost();
         getComment();
     }, [postId]);
+
+    function getAuthorProfile() {
+        navigate(`/${authorUsername}/`);
+    }
+
+    function handleShare() {
+        navigator.clipboard.writeText(window.location.origin + `/posts/${postId}/`);
+        alert("Link copied.");
+      };
 
     const deletePost = async () => {
         try {
@@ -123,9 +133,9 @@ export default function PostDetailView() {
             
             <article className="border-b border-gray-800 p-4">
                 <div className="flex space-x-3">
-                    <img src={post?.author_avatar} alt={post?.author} className="w-12 h-12 rounded-full" />
-                    <div className="flex-1">
-                        <div className="flex items-center space-x-2">
+                    <img onClick={getAuthorProfile} src={post?.author_avatar} alt={post?.author} className="w-12 h-12 rounded-full cursor-pointer" />
+                    <div className="flex-1 cursor-pointer">
+                        <div onClick={getAuthorProfile} className="flex items-center space-x-2">
                             <div>
                                 <h2 className="font-bold">{authorName}</h2>
                                 <p className="text-gray-500">@{post?.author}</p>
@@ -146,6 +156,13 @@ export default function PostDetailView() {
                         >
                             <Heart className={`h-5 w-5 ${isLiked ? 'text-red-500' : ''}`} />
                             <span>{likesCount}</span>
+                        </button>
+                        <button 
+                            onClick={handleShare} 
+                            className="flex items-center space-x-2 hover:text-red-500"
+                            disabled={loading}
+                        >
+                            <Share />
                         </button>
                         { post?.author === user?.username && 
                             <button onClick={deletePost} className="flex items-center space-x-2 hover:text-primary">
