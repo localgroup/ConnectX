@@ -6,21 +6,6 @@ export default function useSearch() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const getSearch = async (query) => {
-        setLoading(true);
-        try {
-            const response = await api.get(`/api/search/`, {
-                params: { q: query }
-            });
-            setSearch(response.data);
-            setLoading(false);
-            return response.data;
-        } catch (err) {
-            setError(err);
-            setLoading(false);
-            throw err;
-        }
-    };
 
     const postSearch = async (data) => {
         setLoading(true);
@@ -37,5 +22,5 @@ export default function useSearch() {
         }
     };
 
-    return { search, getSearch, postSearch, loading, error };
+    return { search, postSearch, loading, error };
 }

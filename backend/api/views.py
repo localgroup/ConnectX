@@ -57,51 +57,6 @@ class SearchView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    def get(self, request, *args, **kwargs):
-        query = request.query_params.get('q', '').strip()
-        
-        if not query:
-            return Response({
-                'query': '',
-                'results': {
-                    'posts': [],
-                    'profiles': []
-                }
-            }, status=status.HTTP_200_OK)
-
-        try:
-            # Search posts
-            posts = Post.objects.filter(
-                Q(body__icontains=query) |
-                Q(author__username__icontains=query)
-            )
-            
-            # Search profiles
-            profiles = Profile.objects.filter(
-                Q(user__username__icontains=query) |
-                Q(first_name__icontains=query) |
-                Q(last_name__icontains=query) |
-                Q(bio__icontains=query)
-            )
-
-            # Serialize the results
-            posts_serializer = PostSerializer(posts, many=True, context={'request': request})
-            profiles_serializer = ProfileSerializer(profiles, many=True, context={'request': request})
-
-            return Response({
-                'query': query,
-                'results': {
-                    'posts': posts_serializer.data,
-                    'profiles': profiles_serializer.data
-                }
-            }, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            return Response(
-                {'error': str(e)}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
 
 class FollowView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
