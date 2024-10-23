@@ -6,7 +6,7 @@ import useProfile from '../hooks/useProfile';
 import { useAuth } from '../contexts/useAuth';
 
 
-export default function LeftSidebar({expandButton}) {
+export default function LeftSidebar({ expandButton }) {
 
     const { user } = useAuth(); 
     const { profile, loading } = useProfile(user?.username);
