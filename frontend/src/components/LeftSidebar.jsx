@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Home, Bell, Mail, User, Search, LogOutIcon } from 'lucide-react';
 import ConnectXLogo from './ConnectXLogo';
 import NavItem from './NavItem';
 import useProfile from '../hooks/useProfile';
 import { useAuth } from '../contexts/useAuth';
+import PostButton from './PostButton'; 
 
 
-export default function LeftSidebar({ expandButton }) {
+export default function LeftSidebar({ expanded, expandButton }) {
 
     const { user } = useAuth(); 
     const { profile, loading } = useProfile(user?.username);
@@ -25,9 +26,7 @@ export default function LeftSidebar({ expandButton }) {
                 <NavItem Icon={User} text="Profile" to={`/${user?.username}`} />
                 <NavItem Icon={LogOutIcon} text="LogOut" to="/logout/" />
               </nav>
-              <button onClick={expandButton} className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
-                Post
-              </button>
+              <PostButton expanded={expanded} expandButton={expandButton} />
               <button className="mt-8 bg-primary text-white rounded-full p-3 font-bold xl:hidden hover:bg-primary/90 transition duration-200">
                 <X className="h-6 w-6" />
               </button>

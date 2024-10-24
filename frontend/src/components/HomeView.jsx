@@ -4,6 +4,7 @@ import api from '../api';
 import LeftSidebar from './LeftSidebar';
 import useExpand from '../hooks/useExpand';
 import PostForm from './PostForm';
+import { useSearchParams } from 'react-router-dom';
 
 
 
@@ -18,6 +19,18 @@ export default function HomeView() {
 
     const [posts, setPosts, loading] = useState([]);
     const { expanded, expandButton } = useExpand();
+    const [searchParams] = useSearchParams();
+
+
+    useEffect(() => {
+      // Check for expand parameter in URL
+      const shouldExpand = searchParams.get('expand') === 'true';
+      if (shouldExpand && !expanded) {
+        expandButton();
+        // Clean up the URL after expanding
+        window.history.replaceState({}, '', '/home/');
+      }
+    }, [searchParams, expanded, expandButton]);
     
 
     useEffect(() => {
@@ -44,7 +57,7 @@ export default function HomeView() {
       <div className="min-h-screen bg-black text-white">
         <div className="max-w-screen-xl mx-auto flex">
           {/* Left Sidebar */}
-          <LeftSidebar expandButton={expandButton}/>
+          <LeftSidebar expanded={expanded} expandButton={expandButton}/>
 
           {/* Main Content */}
           <main className="flex-1 border-x border-gray-800">
