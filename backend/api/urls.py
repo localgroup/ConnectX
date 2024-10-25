@@ -17,4 +17,6 @@ urlpatterns = [
     path('comments/<int:pk>/', views.CommentDetailView.as_view(), name='comment-detail'),
     path('follow/<str:username>/', views.FollowView.as_view(), name='follow-user'),
     # path('search/', views.SearchView.as_view(), name='search'),
+    path('messages/', views.MessageListCreateView.as_view(), name='message-list-create'),
+    path('messages/<int:pk>/', views.MessageDetailView.as_view(), name='message-detail'),
 ]

@@ -117,3 +117,17 @@ class SearchQuery:
             Q(user__username__icontains=self.query) | 
             Q(bio__icontains=self.query)
         )
+        
+        
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    message_body = models.TextField(max_length=500)
+    message_media = models.ImageField(upload_to='messages/', null=True, blank=True, validators=[
+        FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp'], message='Only image files are allowed')
+    ])
+    sent_at = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.sender.username} messaged {self.receiver.username}"

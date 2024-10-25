@@ -7,10 +7,45 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .serializers import UserSerializer, ProfileSerializer, PostSerializer, CommentSerializer, LikesSerializer, FollowSerializer, SearchQuerySerializer
-from .models import Profile, Post, Comment, Likes, Follow, SearchQuery
+from .serializers import UserSerializer, ProfileSerializer,MessageSerializer, PostSerializer, CommentSerializer, LikesSerializer, FollowSerializer, SearchQuerySerializer
+from .models import Profile, Post, Comment, Likes, Follow, SearchQuery, Message
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
+
+class MessageListCreateView(generics.ListCreateAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Message.objects.filter(
+            Q(sender=user) | Q(receiver=user)
+        ).order_by('-sent_at')
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
+
+
+class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Message.objects.filter(
+            Q(sender=user) | Q(receiver=user)
+        )
+
+    def perform_update(self, serializer):
+        if self.get_object().sender != self.request.user:
+            raise PermissionDenied("You cannot edit messages you didn't send")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.sender != self.request.user:
+            raise PermissionDenied("You cannot delete messages you didn't send")
+        instance.delete()
+        
 
 class SearchView(APIView):
     permission_classes = [IsAuthenticated]

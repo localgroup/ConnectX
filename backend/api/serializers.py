@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile, User, Post, Comment, Likes, Follow, SearchQuery
+from .models import Profile, User, Post, Comment, Likes, Follow, SearchQuery, Message
 from django.conf import settings
 from urllib.parse import urljoin
 
@@ -229,3 +229,49 @@ class SearchQuerySerializer(serializers.Serializer):
             'posts': PostSerializer(posts, many=True, context=self.context).data,
             'profiles': ProfileSerializer(profiles, many=True, context=self.context).data
         }
+        
+        
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.StringRelatedField(read_only=True)
+    receiver = serializers.StringRelatedField(read_only=True)
+    sender_avatar = serializers.SerializerMethodField()
+    receiver_avatar = serializers.SerializerMethodField()
+    message_media = serializers.ImageField(max_length=255, use_url=True, required=False)
+
+    class Meta:
+        model = Message
+        fields = [
+            'id', 
+            'sender', 
+            'sender_avatar',
+            'receiver', 
+            'receiver_avatar',
+            'message_body', 
+            'message_media', 
+            'sent_at', 
+            'is_read'
+        ]
+        read_only_fields = ['sender', 'sent_at']
+
+    def get_sender_avatar(self, obj):
+        request = self.context.get('request')
+        if obj.sender.profile.avatar:
+            return request.build_absolute_uri(obj.sender.profile.avatar.url)
+        return None
+
+    def get_receiver_avatar(self, obj):
+        request = self.context.get('request')
+        if obj.receiver.profile.avatar:
+            return request.build_absolute_uri(obj.receiver.profile.avatar.url)
+        return None
+
+    def get_message_media(self, obj):
+        if obj.message_media:
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.message_media.url)
+        return None
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        validated_data['sender'] = request.user
+        return super().create(validated_data)
