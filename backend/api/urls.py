@@ -7,7 +7,6 @@ urlpatterns = [
     path('home/', views.HomeView.as_view(), name='home'),
     path('<str:username>/', views.ProfileView.as_view(), name="profile"),
     path('<str:username>/update-profile/', views.UpdateProfileView.as_view(), name='update-profile'),
-    # path('posts/', views.PostListCreateView.as_view(), name='post-list'),
     path('<str:username>/posts/', views.PostListCreateView.as_view(), name='user-post-list'),
     path('<str:username>/follower/', views.FollowView.as_view(), name='followers'),
     path('<str:username>/following/', views.FollowView.as_view(), name='following'),
@@ -16,7 +15,5 @@ urlpatterns = [
     path('posts/<int:post_pk>/comments/', views.CommentListCreateView.as_view(), name='comment-list'),
     path('comments/<int:pk>/', views.CommentDetailView.as_view(), name='comment-detail'),
     path('follow/<str:username>/', views.FollowView.as_view(), name='follow-user'),
-    # path('search/', views.SearchView.as_view(), name='search'),
-    path('messages/', views.MessageListCreateView.as_view(), name='message-list-create'),
     path('messages/<int:pk>/', views.MessageDetailView.as_view(), name='message-detail'),
 ]

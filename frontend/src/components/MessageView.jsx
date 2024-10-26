@@ -1,42 +1,46 @@
-import React, { useState } from 'react';
-import { Network, X, Home, Bell, Mail, User, Search, MoreHorizontal, Settings, Send, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Send, ChevronDown } from 'lucide-react';
+import LeftSidebar from './LeftSidebar';
+import useExpand from '../hooks/useExpand';
+import useMessage from '../hooks/useMessage';
 
-const ConnectXLogo = () => (
-  <div className="relative w-12 h-12">
-    <Network className="w-12 h-12 text-primary absolute" />
-    <X className="w-10 h-10 text-primary absolute top-1 left-1" />
-  </div>
-);
 
-const NavItem = ({ Icon, text }) => (
-  <a href="#" className="flex items-center space-x-4 p-3 hover:bg-gray-800 rounded-full">
-    <Icon className="h-7 w-7" />
-    <span className="text-xl hidden xl:inline">{text}</span>
-  </a>
-);
 
-const ConversationItem = ({ name, handle, lastMessage, timestamp, isActive, onClick }) => (
+
+const ConversationItem = ({ id, sender, sender_avatar, sent_at, isActive, onClick }) => (
   <div 
     className={`flex items-center space-x-3 p-3 hover:bg-gray-800 cursor-pointer ${isActive ? 'bg-gray-800' : ''}`}
     onClick={onClick}
   >
-    <img src="/placeholder.svg?height=48&width=48" alt={name} className="w-12 h-12 rounded-full" />
+    <img src={sender_avatar} alt={sender} className="w-12 h-12 rounded-full" />
     <div className="flex-1">
       <div className="flex justify-between">
-        <h3 className="font-bold">{name}</h3>
-        <span className="text-sm text-gray-500">{timestamp}</span>
+        <h3 className="font-bold">{sender}</h3>
+        <span className="text-sm text-gray-500">{sent_at}</span>
       </div>
-      <p className="text-gray-500">@{handle}</p>
-      <p className="text-sm truncate">{lastMessage}</p>
+      <p className="text-gray-500">@{sender}</p>
+      <p className="text-sm truncate">{sent_at}</p>
     </div>
   </div>
 );
 
-const MessageBubble = ({ content, timestamp, isSent }) => (
-  <div className={`flex ${isSent ? 'justify-end' : 'justify-start'} mb-4`}>
-    <div className={`max-w-xs ${isSent ? 'bg-primary text-white' : 'bg-gray-800 text-white'} rounded-lg p-3`}>
-      <p>{content}</p>
-      <p className="text-xs text-gray-400 mt-1">{timestamp}</p>
+// 'id', 
+//'sender', 
+//'sender_avatar',
+//'receiver', 
+//'receiver_avatar',
+//'message_body', 
+//'message_media', 
+//'sent_at', 
+//'is_read
+
+
+const MessageBubble = ({ message_body, message_media, sent_at, is_read }) => (
+  <div className={`flex ${sent_at ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div className={`max-w-xs ${sent_at ? 'bg-primary text-white' : 'bg-gray-800 text-white'} rounded-lg p-3`}>
+      <p>{message_body}</p>
+      <p className="text-xs text-gray-400 mt-1">{sent_at}</p>
+      <p className="text-xs text-gray-400 mt-1">{is_read}</p>
     </div>
   </div>
 );
@@ -44,6 +48,14 @@ const MessageBubble = ({ content, timestamp, isSent }) => (
 export default function MessageView() {
   const [activeConversation, setActiveConversation] = useState(null);
   const [newMessage, setNewMessage] = useState('');
+
+  const { message, getMessage, loading, error } = useMessage();
+
+  const { expanded, expandButton } = useExpand();
+
+  useEffect(() => {
+    getMessage();
+  }, []);
 
   const conversations = [
     { id: 1, name: "John Doe", handle: "johndoe", lastMessage: "Hey, how's it going?", timestamp: "2h" },
@@ -70,44 +82,17 @@ export default function MessageView() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto flex">
-        {/* Left Sidebar */}
-        <aside className="w-20 xl:w-64 h-screen sticky top-0 flex flex-col justify-between p-4">
-          <div>
-            <ConnectXLogo />
-            <nav className="mt-8 space-y-4">
-              <NavItem Icon={Home} text="Home" />
-              <NavItem Icon={Search} text="Explore" />
-              <NavItem Icon={Bell} text="Notifications" />
-              <NavItem Icon={Mail} text="Messages" />
-              <NavItem Icon={User} text="Profile" />
-              <NavItem Icon={MoreHorizontal} text="More" />
-            </nav>
-            <button className="mt-8 bg-primary text-white rounded-full py-3 px-8 font-bold w-full hidden xl:block hover:bg-primary/90 transition duration-200">
-              Post
-            </button>
-            <button className="mt-8 bg-primary text-white rounded-full p-3 font-bold xl:hidden hover:bg-primary/90 transition duration-200">
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-          <div className="mb-4 flex items-center space-x-3">
-            <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-10 h-10 rounded-full" />
-            <div className="hidden xl:block">
-              <h3 className="font-bold">Your Name</h3>
-              <p className="text-gray-500">@yourhandle</p>
-            </div>
-          </div>
-        </aside>
+        <div className="max-w-screen-xl mx-auto flex">
+          {/* Left Sidebar */}
+          <LeftSidebar expanded={expanded} expandButton={expandButton}/>
 
         {/* Main Content */}
-        <main className="flex-1 border-x border-gray-800 flex">
+        <main className="flex-1 border-x border-gray-800">
           {/* Conversation List */}
-          <div className="w-1/3 border-r border-gray-800">
+          <div className="border-r border-gray-800">
             <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800">
               <h1 className="text-xl font-bold">Messages</h1>
               <button className="mt-2 flex items-center text-primary">
-                <Settings className="h-5 w-5 mr-2" />
-                <span>Message requests</span>
               </button>
             </header>
             <div className="overflow-y-auto h-[calc(100vh-80px)]">
@@ -123,7 +108,7 @@ export default function MessageView() {
           </div>
 
           {/* Message Area */}
-          <div className="w-2/3 flex flex-col">
+          <div className="flex-1 border-x border-gray-800">
             {activeConversation ? (
               <>
                 <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800 flex items-center justify-between">

@@ -14,6 +14,7 @@ import Following from "./pages/Following";
 import Follower from "./pages/Follower";
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/useAuth';
+import Message from "./pages/Message";
 
 function Logout() {
   const { logout } = useAuth();
@@ -40,6 +41,8 @@ function App() {
           <Route path="/:username/follower/" element={<ProtectedRoute><Follower /></ProtectedRoute>} />          
           <Route path="/:username/following/" element={<ProtectedRoute><Following /></ProtectedRoute>} />          
           <Route path="/search/" element={<ProtectedRoute><Search /></ProtectedRoute>} />          
+          <Route path="/messages/" element={<ProtectedRoute><Message /></ProtectedRoute>} />          
+          <Route path="/messages/:messageId/" element={<ProtectedRoute><Message /></ProtectedRoute>} />          
 
         </Routes>
       </BrowserRouter>

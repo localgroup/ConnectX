@@ -22,7 +22,7 @@ export default function LeftSidebar({ expanded, expandButton }) {
                 <NavItem Icon={Home} text="Home" to="/home/" />
                 <NavItem Icon={Search} text="Explore" to="/search/" />
                 <NavItem Icon={Bell} text="Notifications" />
-                <NavItem Icon={Mail} text="Messages" />
+                <NavItem Icon={Mail} text="Messages" to="/messages/"  />
                 <NavItem Icon={User} text="Profile" to={`/${user?.username}`} />
                 <NavItem Icon={LogOutIcon} text="LogOut" to="/logout/" />
               </nav>
