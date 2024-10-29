@@ -20,5 +20,17 @@ export default function useMessage() {
         }
     };
 
-    return { message, getMessage, loading, error };
+    const sendMessage = async (data) => {
+        try {
+            const response = await api.post(`/api/messages/`, {data});
+            console.log(response.data);
+            setMessage(response.data);
+            setLoading(false);
+        } catch (err) {
+            setError(err);
+            setLoading(false);
+        }
+    };
+
+    return { message, getMessage, sendMessage, loading, error };
 }

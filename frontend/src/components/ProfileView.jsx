@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Calendar, Link } from 'lucide-react';
+import { MapPin, Calendar, Link, Mail } from 'lucide-react';
 import Post from './Post';
 import api from '../api';
 import useProfile from '../hooks/useProfile';
@@ -41,6 +41,10 @@ export default function ProfileView() {
     const handleClickFollower = () => {
       navigate(`/${username}/follower/`);
     };
+
+    // function handleMessage() {
+
+    // }
 
     const [posts, setPosts] = useState([]);
 
@@ -116,13 +120,20 @@ export default function ProfileView() {
                     </button>
                   )}
                 </div>
+                
                 <div className="flex justify-end mb-4">
                   {user && user?.username != username && (
                     <button onClick={handleFollow} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200">
                       {follow ? 'Unfollow' : 'Follow'}
                     </button>
-                    )}
+                    )} &nbsp; &nbsp;&nbsp;&nbsp;
+                  {follow && <button>
+                    <Mail /> 
+                  </button> }
+                  
                 </div>
+
+                
                 <h2 className="text-2xl font-bold">{userProfile?.name}</h2>
                 <p className="text-gray-500">@{userProfile?.handle}</p>
                 <p className="mt-3">{userProfile?.bio}</p>
