@@ -17,7 +17,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile   # Use the Profile model.
         fields = [
-            'first_name', 'last_name', 'username', 'email', 'bio', 'location', 'website', 'birth_date', 'cover_image', 'avatar', 'date_joined', 'timezone'
+            'id', 'first_name', 'last_name', 'username', 'email', 'bio', 'location', 'website', 'birth_date', 'cover_image', 'avatar', 'date_joined', 'timezone'
         ]
         read_only_fields = ['username', 'email', 'date_joined']
 
@@ -272,6 +272,10 @@ class MessageSerializer(serializers.ModelSerializer):
         return None
 
     def create(self, validated_data):
-        request = self.context.get('request')
-        validated_data['sender'] = request.user
-        return super().create(validated_data)
+        return Message.objects.create(**validated_data)
+
+    def validate(self, data):
+        # Validate message_body is not empty
+        if not data.get('message_body', '').strip():
+            raise serializers.ValidationError({"message_body": "This field is required and cannot be empty."})
+        return data

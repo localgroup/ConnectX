@@ -7,14 +7,15 @@ import MessageBubble from './MessageBubble';
 import useMessage from '../hooks/useMessage';
 import useSearch from '../hooks/useSearch';
 import MessagePeopleSearch from './MessagePeopleSearch';
+import MessageForm from './MessageForm';
 
 
 
 export default function MessageView() {
   const [activeConversation, setActiveConversation] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [newMessage, setNewMessage] = useState('');
   const [searchResults, setSearchResults] = useState({ posts: [], profiles: [] });
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const { expanded, expandButton } = useExpand();
   const { message, getMessage, sendMessage, loading, error } = useMessage();
@@ -41,6 +42,31 @@ export default function MessageView() {
     }
   };
 
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
+  };
+
+  const handleSendMessage = async (messageBody) => {
+    if (!selectedUser || !messageBody.trim()) return;
+
+    try {
+      const formData = new FormData();
+      formData.append('receiver', selectedUser?.id);
+      formData.append('message_body', messageBody.trim());
+
+      // Debug: Log form data
+      console.log('Form data:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      const response = await sendMessage(formData);
+      getMessage();
+    } catch (err) {
+      console.error('Send message error:', err.response?.data || err);
+    }
+};
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-screen-xl mx-auto flex">
@@ -66,6 +92,12 @@ export default function MessageView() {
                 />
               ))}
             </div>
+            {selectedUser && (
+              <MessageForm
+                recipient={selectedUser}
+                onSendMessage={handleSendMessage}
+              />
+            )}
           </div>
 
           {/* Message Area */}
@@ -92,49 +124,40 @@ export default function MessageView() {
                     />
                   ))}
                 </div>
-                {/* <form onSubmit={handleSendMessage} className="border-t border-gray-800 p-4 flex items-center space-x-2">
-                  <input
-                    type="text"
-                    placeholder="Start a new message"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    className="flex-1 bg-gray-800 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <button 
-                    type="submit"
-                    className="bg-primary text-white rounded-full p-2 hover:bg-primary/90 transition duration-200"
-                    disabled={!newMessage.trim()}
-                  >
-                    <Send className="h-5 w-5" />
-                  </button>
-                </form> */}
 
           </div>
         </main>
 
         {/* Right Sidebar */}
         <aside className="w-96 h-screen sticky top-0 hidden lg:block">
-          <div className="h-full flex items-center justify-center p-4">
-            <div className="max-w-md w-full">
-              <h2 className="text-2xl font-bold mb-4 text-center">Start a new message</h2>
-              <form onSubmit={handleSearch} className="p-4">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search people"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-gray-900 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-500" />
-                </div>
-              </form>
-              {searchResults && (
-                <div className="px-4">
-                  <MessagePeopleSearch results={searchResults} />
-                </div>
-              )}
-            </div>
+          <div className="h-full flex flex-col p-4">
+            <h2 className="text-2xl font-bold mb-4 text-center">Start a new message</h2>
+            <form onSubmit={handleSearch} className="mb-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search people"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-gray-900 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-500" />
+              </div>
+            </form>
+            {searchResults && (
+              <div className="flex-grow overflow-y-auto">
+                <MessagePeopleSearch 
+                  results={searchResults} 
+                  onUserSelect={handleUserSelect}
+                />
+              </div>
+            )}
+            {selectedUser && (
+              <MessageForm
+                recipient={selectedUser}
+                onSendMessage={handleSendMessage}
+              />
+            )}
           </div>
         </aside>
       </div>

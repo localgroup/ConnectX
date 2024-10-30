@@ -23,7 +23,16 @@ class MessageListCreateView(generics.ListCreateAPIView):
         ).order_by('-sent_at')
 
     def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
+        receiver_id = self.request.data.get('receiver')
+        if not receiver_id:
+            raise ValidationError({'receiver': 'Receiver ID is required'})
+        
+        try:
+            receiver = User.objects.get(id=receiver_id)
+        except User.DoesNotExist:
+            raise ValidationError({'receiver': 'Invalid receiver ID'})
+
+        serializer.save(sender=self.request.user, receiver=receiver)
 
 
 class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
