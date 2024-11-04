@@ -12,27 +12,61 @@ from .models import Profile, Post, Comment, Likes, Follow, SearchQuery, Message
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
 
+# class MessageListCreateView(generics.ListCreateAPIView):
+#     serializer_class = MessageSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         return Message.objects.filter(
+#             Q(sender=user) | Q(receiver=user)
+#         ).order_by('-sent_at')
+
+#     def perform_create(self, serializer):
+#         receiver_id = self.request.data.get('receiver')
+#         if not receiver_id:
+#             raise ValidationError({'receiver': 'Receiver ID is required'})
+        
+#         try:
+#             receiver = User.objects.get(id=receiver_id)
+#         except User.DoesNotExist:
+#             raise ValidationError({'receiver': 'Invalid receiver ID'})
+
+#         serializer.save(sender=self.request.user, receiver=receiver)
+
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
+        other_username = self.kwargs.get('username')
+        other_user = get_object_or_404(User, username=other_username)
+
         return Message.objects.filter(
-            Q(sender=user) | Q(receiver=user)
+            (Q(sender=user, receiver=other_user) | Q(sender=other_user, receiver=user))
         ).order_by('-sent_at')
 
     def perform_create(self, serializer):
-        receiver_id = self.request.data.get('receiver')
-        if not receiver_id:
-            raise ValidationError({'receiver': 'Receiver ID is required'})
-        
-        try:
-            receiver = User.objects.get(id=receiver_id)
-        except User.DoesNotExist:
-            raise ValidationError({'receiver': 'Invalid receiver ID'})
+        other_username = self.kwargs.get('username')
+        receiver = get_object_or_404(User, username=other_username)
+
+        if receiver == self.request.user:
+            raise ValidationError({'receiver': 'You cannot send a message to yourself'})
 
         serializer.save(sender=self.request.user, receiver=receiver)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):

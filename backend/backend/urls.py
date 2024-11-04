@@ -13,7 +13,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('api/posts/', PostListCreateView.as_view(), name='post-list'),
     path('api/search/', SearchView.as_view(), name='search'),
-    path('api/messages/', MessageListCreateView.as_view(), name='message-list-create'),
+    path('api/messages/<str:username>/', MessageListCreateView.as_view(), name='message-list-create'),
     path('api_auth/', include('rest_framework.urls')),
     path('api/', include('api.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
