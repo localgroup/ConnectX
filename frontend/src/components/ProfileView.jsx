@@ -42,9 +42,9 @@ export default function ProfileView() {
       navigate(`/${username}/follower/`);
     };
 
-    // function handleMessage() {
-
-    // }
+    function handleMessage() {
+      navigate(`/messages/`)
+    };
 
     const [posts, setPosts] = useState([]);
 
@@ -127,9 +127,10 @@ export default function ProfileView() {
                       {follow ? 'Unfollow' : 'Follow'}
                     </button>
                     )} &nbsp; &nbsp;&nbsp;&nbsp;
-                  {follow && <button>
-                    <Mail /> 
-                  </button> }
+                  { user && user?.username != username && 
+                  (<button onClick={handleMessage} className="border border-gray-600 text-white rounded-full px-4 py-2 font-bold hover:bg-primary/90 transition duration-200">
+                    < Mail />
+                  </button> )}
                   
                 </div>
 

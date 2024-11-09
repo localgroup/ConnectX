@@ -2,7 +2,7 @@ import React from 'react';
 import useProfile from '../hooks/useProfile';
 
 
-export default function ConversationItem ({ id, sender, receiver, receiver_avatar, sender_avatar, sent_at, isActive, onClick }) {
+export default function ConversationItem ({ sender, receiver, receiver_avatar, sender_avatar, sent_at, isActive, onClick }) {
 
     const { profile } = useProfile(receiver);
 
@@ -25,7 +25,7 @@ export default function ConversationItem ({ id, sender, receiver, receiver_avata
             className={`flex items-center space-x-3 p-3 hover:bg-gray-800 cursor-pointer ${isActive ? 'bg-gray-800' : ''}`}
             onClick={userClick}
         >
-            <img src={receiver_avatar} alt={sender} className="w-12 h-12 rounded-full" />
+            <img src={receiver_avatar} alt={receiver} className="w-12 h-12 rounded-full" />
             <div className="flex-1">
             <div className="flex justify-between">
                 <h3 className="font-bold">{name}</h3>

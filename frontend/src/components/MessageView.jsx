@@ -82,7 +82,7 @@ export default function MessageView() {
       <LeftSidebar expanded={expanded} expandButton={expandButton}/>
 
       {/* Main Content */}
-      <main className="w-[calc(100%-48rem)] border-x border-gray-800"> {/* Reduced from 32rem to 48rem */}
+      <main className="w-[calc(100%-48rem)] border-x border-gray-800">
         {/* Conversation List */}
         <div className="border-r border-gray-800">
           <header className="sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-10 p-4 border-b border-gray-800">
@@ -101,7 +101,7 @@ export default function MessageView() {
       </main>
 
       {/* Right Sidebar */}
-      <aside className="w-[32rem] h-screen sticky top-0 hidden lg:block border-l border-gray-800"> {/* Increased from w-80 to w-[32rem] */}
+      <aside className="w-[32rem] h-screen sticky top-0 hidden lg:block border-l border-gray-800"> 
         {selectedUser ? (
           <div className="h-full flex flex-col scrollbar-hide">
             {/* Header */}

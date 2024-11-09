@@ -19,6 +19,8 @@ export default function ChatContainer({ message }) {
                     key={message?.id}
                     message_body={message?.message_body}
                     message_media={message?.message_media}
+                    sender={message?.sender}
+                    receiver={message?.receiver}
                     sent_at={message?.sent_at}
                     is_read={message?.is_read}
                 />

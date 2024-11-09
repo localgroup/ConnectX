@@ -12,28 +12,6 @@ from .models import Profile, Post, Comment, Likes, Follow, SearchQuery, Message
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
 
-# class MessageListCreateView(generics.ListCreateAPIView):
-#     serializer_class = MessageSerializer
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         user = self.request.user
-#         return Message.objects.filter(
-#             Q(sender=user) | Q(receiver=user)
-#         ).order_by('-sent_at')
-
-#     def perform_create(self, serializer):
-#         receiver_id = self.request.data.get('receiver')
-#         if not receiver_id:
-#             raise ValidationError({'receiver': 'Receiver ID is required'})
-        
-#         try:
-#             receiver = User.objects.get(id=receiver_id)
-#         except User.DoesNotExist:
-#             raise ValidationError({'receiver': 'Invalid receiver ID'})
-
-#         serializer.save(sender=self.request.user, receiver=receiver)
-
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
