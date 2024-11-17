@@ -8,6 +8,8 @@ import MessagePeopleSearch from './MessagePeopleSearch';
 import MessageForm from './MessageForm';
 import ConversationList from './ConversationList';
 import ChatContainer from './ChatContainer';
+import { useAuth } from '../contexts/useAuth';
+import useConversation from '../hooks/useConversation';
 
 
 
@@ -17,15 +19,22 @@ export default function MessageView() {
     const [searchResults, setSearchResults] = useState({ posts: [], profiles: [] });
     const [selectedUser, setSelectedUser] = useState(null);
 
+    const { user } = useAuth();
+
     const { expanded, expandButton } = useExpand();
     const { message, getMessage, sendMessage } = useMessage(selectedUser?.username);
+    const  { conversations, getConversation } = useConversation();
     const { search, postSearch } = useSearch();
 
     useEffect(() => {
       if (selectedUser?.username) {
           getMessage();
       }
-  }, [selectedUser, getMessage]);
+    }, [selectedUser, getMessage]);
+
+    useEffect(() => {
+      getConversation();
+    }, []);
 
     const handleSearch = async (e) => {
       e.preventDefault();
@@ -90,11 +99,12 @@ export default function MessageView() {
           </header>
           <div className="overflow-y-auto h-[calc(100vh-80px)]">
             <ConversationList
-              key={message?.id}
-              conversations={message} 
+              key={conversations?.id}
+              conversations={conversations} 
               activeConversation={activeConversation} 
               setActiveConversation={setActiveConversation}
               onClick={handleUserSelect}
+              loggedInUserId={user?.id}
             />
           </div>
         </div>

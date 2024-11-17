@@ -12,6 +12,15 @@ from .models import Profile, Post, Comment, Likes, Follow, SearchQuery, Message
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
 
+class MessageListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        messages = Message.objects.filter(receiver=request.user)
+        serializer = MessageSerializer(messages, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
