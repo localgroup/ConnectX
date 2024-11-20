@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trash, Edit } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 
 
@@ -23,6 +24,21 @@ export default function MessageBubble ({ message_body, message_media, sender, re
                     />
                 )}
                 <p className="text-xs text-gray-400 mt-1">{formatDate(sent_at)}</p>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+                <button 
+                    className="text-red-500 hover:text-red-700 transition-colors"
+                    aria-label="Delete"
+                >
+                    <Trash />
+                </button>
+                <button 
+                    className="text-blue-500 hover:text-blue-700 transition-colors"
+                    aria-label="Edit"
+                >
+                    <Edit />
+                </button>
             </div>
         </div>
     );
