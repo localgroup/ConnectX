@@ -100,6 +100,7 @@ export default function MessageView() {
           <div className="overflow-y-auto h-[calc(100vh-80px)]">
             <ConversationList
               key={conversations?.id}
+              messageId={conversations?.id}
               conversations={conversations} 
               activeConversation={activeConversation} 
               setActiveConversation={setActiveConversation}

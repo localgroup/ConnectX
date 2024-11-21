@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/posts/', PostListCreateView.as_view(), name='post-list'),
     path('api/search/', SearchView.as_view(), name='search'),
     path('api/messages/', MessageListView.as_view(), name='message-list-view'),
+    path('api/messages/<int:pk>/', MessageDetailView.as_view(), name='message-detail'),
     path('api/messages/<str:username>/', MessageListCreateView.as_view(), name='message-list-create'),
     path('api_auth/', include('rest_framework.urls')),
     path('api/', include('api.urls')),

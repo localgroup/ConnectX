@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import ConversationItem from './ConversationItem';
 
-export default function ConversationList({ conversations, activeConversation, setActiveConversation, onClick }) {
+export default function ConversationList({ messageId, conversations, activeConversation, setActiveConversation, onClick }) {
     const uniqueConversations = useMemo(() => {
         // Check if conversations is an array and not empty
         if (!Array.isArray(conversations) || conversations?.length === 0) {
@@ -41,7 +41,7 @@ export default function ConversationList({ conversations, activeConversation, se
           {uniqueConversations.map(conv => (
             <ConversationItem
               key={conv?.id}
-              id={conv?.id}
+              messageId={conv?.id}
               sender={conv?.sender}
               receiver={conv?.receiver}
               receiver_avatar={conv?.receiver_avatar}

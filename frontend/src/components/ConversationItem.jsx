@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import useProfile from '../hooks/useProfile';
 
 
-export default function ConversationItem({ sender, sender_avatar, sent_at, isActive, onClick, loggedInUserId }) {
+export default function ConversationItem({ messageId, sender, sender_avatar, sent_at, isActive, onClick, loggedInUserId }) {
     const { profile } = useProfile(sender);
     
 

@@ -17,6 +17,7 @@ export default function ChatContainer({ message }) {
             {sortedMessages.map((message) => (
                 <MessageBubble
                     key={message?.id}
+                    messageId={message?.id}
                     message_body={message?.message_body}
                     message_media={message?.message_media}
                     sender={message?.sender}

@@ -15,5 +15,4 @@ urlpatterns = [
     path('posts/<int:post_pk>/comments/', views.CommentListCreateView.as_view(), name='comment-list'),
     path('comments/<int:pk>/', views.CommentDetailView.as_view(), name='comment-detail'),
     path('follow/<str:username>/', views.FollowView.as_view(), name='follow-user'),
-    path('messages/<int:pk>/', views.MessageDetailView.as_view(), name='message-detail'),
 ]
