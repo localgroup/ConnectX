@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from api.views import CreateUserView, SearchView, PostListCreateView, MessageListCreateView, PostDetailView, MessageDetailView, MessageListView
+from api.views import CreateUserView, SearchView, PostListCreateView, MessageListCreateView, NotificationListView, PostDetailView, MessageDetailView, MessageListView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/messages/', MessageListView.as_view(), name='message-list-view'),
     path('api/messages/<int:pk>/', MessageDetailView.as_view(), name='message-detail'),
     path('api/messages/<str:username>/', MessageListCreateView.as_view(), name='message-list-create'),
+    path('api/notifications/', NotificationListView.as_view(), name='notification-list'),
     path('api_auth/', include('rest_framework.urls')),
     path('api/', include('api.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

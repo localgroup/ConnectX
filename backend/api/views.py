@@ -1,14 +1,14 @@
 # views.py
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .serializers import UserSerializer, ProfileSerializer,MessageSerializer, PostSerializer, CommentSerializer, LikesSerializer, FollowSerializer, SearchQuerySerializer
-from .models import Profile, Post, Comment, Likes, Follow, SearchQuery, Message
+from .serializers import UserSerializer, ProfileSerializer,MessageSerializer, PostSerializer, CommentSerializer, LikesSerializer, FollowSerializer, NotificationSerializer
+from .models import Profile, Post, Comment, Likes, Follow, Notification, Message
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
 
@@ -356,4 +356,125 @@ class HomeView(APIView):
         return Response({
             'message': 'Welcome to ConnectX!',
             'user': serializer.data
+        })
+
+
+# Notification view
+class NotificationListView(generics.ListAPIView):
+    """
+    List all notifications for the current user
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Return notifications for the current user, ordered by most recent
+        """
+        return Notification.objects.filter(
+            recipient=self.request.user
+        ).order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        """
+        Custom list method to include additional metadata
+        """
+        queryset = self.get_queryset()
+        
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'notifications': serializer.data,
+            'total_count': queryset.count(),
+            'unread_count': queryset.filter(is_read=False).count()
+        })
+
+
+class NotificationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a specific notification
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Ensure users can only access their own notifications
+        """
+        return Notification.objects.filter(recipient=self.request.user)
+
+    def perform_update(self, serializer):
+        """
+        Custom update to ensure only is_read can be modified
+        """
+        notification = self.get_object()
+        
+        # Only allow marking as read/unread
+        if 'is_read' in serializer.validated_data:
+            serializer.save()
+        else:
+            raise serializers.ValidationError("You can only modify the read status.")
+
+
+class UnreadNotificationCountView(APIView):
+    """
+    Get the count of unread notifications
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """
+        Return the number of unread notifications
+        """
+        count = Notification.objects.filter(
+            recipient=request.user, 
+            is_read=False
+        ).count()
+        return Response({'unread_count': count})
+
+
+class MarkAllNotificationsReadView(APIView):
+    """
+    Mark all notifications as read
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        """
+        Mark all user's notifications as read
+        """
+        updated_count = Notification.objects.filter(
+            recipient=request.user, 
+            is_read=False
+        ).update(is_read=True)
+        
+        return Response({
+            'status': 'All notifications marked as read',
+            'updated_count': updated_count
+        })
+
+
+class DeleteReadNotificationsView(APIView):
+    """
+    Delete all read notifications
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        """
+        Delete all read notifications for the user
+        """
+        deleted_count, _ = Notification.objects.filter(
+            recipient=request.user, 
+            is_read=True
+        ).delete()
+        
+        return Response({
+            'status': 'Read notifications deleted',
+            'deleted_count': deleted_count
         })

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile, User, Post, Comment, Likes, Follow, SearchQuery, Message
+from .models import Profile, User, Post, Comment, Likes, Follow, Notification, Message
 from django.conf import settings
 from urllib.parse import urljoin
 
@@ -279,3 +279,49 @@ class MessageSerializer(serializers.ModelSerializer):
         if not data.get('message_body', '').strip():
             raise serializers.ValidationError({"message_body": "This field is required and cannot be empty."})
         return data
+    
+    
+class NotificationSerializer(serializers.ModelSerializer):
+    sender = UserSerializer(read_only=True)
+    recipient = UserSerializer(read_only=True)
+    
+    # Additional context fields
+    post_details = serializers.SerializerMethodField()
+    sender_avatar = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Notification
+        fields = [
+            'id', 
+            'sender', 
+            'sender_avatar',
+            'recipient', 
+            'notification_type', 
+            'message', 
+            'is_read', 
+            'created_at',
+            'post_details'
+        ]
+    
+    def get_sender_avatar(self, obj):
+        """
+        Get sender's avatar URL
+        """
+        request = self.context.get('request')
+        if obj.sender.profile.avatar:
+            return request.build_absolute_uri(obj.sender.profile.avatar.url)
+        return None
+    
+    def get_post_details(self, obj):
+        """
+        Get additional details about the related post
+        """
+        if obj.post:
+            return {
+                'id': obj.post.id,
+                'body': obj.post.body,
+                'author': obj.post.author.username,
+                'media': obj.post.media.url if obj.post.media else None,
+                'created_at': obj.post.created_at
+            }
+        return None

@@ -6,6 +6,8 @@ from django.core.validators import FileExtensionValidator
 from django.utils import timezone
 import pytz
 from django.db.models import Q
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 class Profile(models.Model):
@@ -131,3 +133,151 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender.username} messaged {self.receiver.username}"
+
+
+class NotificationType(models.TextChoices):
+    LIKE = 'LIKE', 'Like'
+    COMMENT = 'COMMENT', 'Comment'
+    FOLLOW = 'FOLLOW', 'Follow'
+    MESSAGE = 'MESSAGE', 'Message'
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='notifications'
+    )
+    sender = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='sent_notifications'
+    )
+    notification_type = models.CharField(
+        max_length=20, 
+        choices=NotificationType.choices
+    )
+    
+    # Generic foreign key for different notification sources
+    content_type = models.ForeignKey(
+        'contenttypes.ContentType', 
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+    
+    # Additional context fields
+    post = models.ForeignKey(
+        Post, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True
+    )
+    
+    # Notification details
+    message = models.TextField(max_length=255)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['recipient', 'is_read']),
+            models.Index(fields=['notification_type']),
+        ]
+    
+    def __str__(self):
+        return f"{self.sender.username} - {self.notification_type} to {self.recipient.username}"
+    
+    @classmethod
+    def create_like_notification(cls, like):
+        """
+        Create a notification for a like
+        """
+        return cls.objects.create(
+            recipient=like.post.author,
+            sender=like.author,
+            notification_type=NotificationType.LIKE,
+            post=like.post,
+            content_object=like,
+            message=f"{like.author.username} liked your post"
+        )
+    
+    @classmethod
+    def create_comment_notification(cls, comment):
+        """
+        Create a notification for a comment
+        """
+        return cls.objects.create(
+            recipient=comment.post.author,
+            sender=comment.author,
+            notification_type=NotificationType.COMMENT,
+            post=comment.post,
+            content_object=comment,
+            message=f"{comment.author.username} commented on your post"
+        )
+    
+    @classmethod
+    def create_follow_notification(cls, follow):
+        """
+        Create a notification for a follow
+        """
+        return cls.objects.create(
+            recipient=follow.target,
+            sender=follow.user,
+            notification_type=NotificationType.FOLLOW,
+            content_object=follow,
+            message=f"{follow.user.username} started following you"
+        )
+    
+    @classmethod
+    def create_message_notification(cls, message):
+        """
+        Create a notification for a message
+        """
+        return cls.objects.create(
+            recipient=message.receiver,
+            sender=message.sender,
+            notification_type=NotificationType.MESSAGE,
+            content_object=message,
+            message=f"New message from {message.sender.username}"
+        )
+    
+    def mark_as_read(self):
+        """
+        Mark the notification as read
+        """
+        self.is_read = True
+        self.save()
+    
+    @classmethod
+    def get_unread_count(cls, user):
+        """
+        Get the count of unread notifications for a user
+        """
+        return cls.objects.filter(recipient=user, is_read=False).count()
+    
+
+@receiver(post_save, sender=Likes)
+def create_like_notification(sender, instance, created, **kwargs):
+    if created:
+        Notification.create_like_notification(instance)
+
+
+@receiver(post_save, sender=Comment)
+def create_comment_notification(sender, instance, created, **kwargs):
+    if created:
+        Notification.create_comment_notification(instance)
+
+
+@receiver(post_save, sender=Follow)
+def create_follow_notification(sender, instance, created, **kwargs):
+    if created:
+        Notification.create_follow_notification(instance)
+
+
+@receiver(post_save, sender=Message)
+def create_message_notification(sender, instance, created, **kwargs):
+    if created and not instance.is_read:
+        Notification.create_message_notification(instance)

@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./pages/EditProfile";
 import Following from "./pages/Following";
 import Follower from "./pages/Follower";
+import Feed from "./pages/Feed";
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/useAuth';
 import Message from "./pages/Message";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/posts/:postId/" element={<ProtectedRoute><ViewPost /></ProtectedRoute>} />          
           <Route path="/:username/follower/" element={<ProtectedRoute><Follower /></ProtectedRoute>} />          
           <Route path="/:username/following/" element={<ProtectedRoute><Following /></ProtectedRoute>} />          
+          <Route path="/feeds/" element={<ProtectedRoute><Feed /></ProtectedRoute>} />          
           <Route path="/search/" element={<ProtectedRoute><Search /></ProtectedRoute>} />          
           <Route path="/messages/" element={<ProtectedRoute><Message /></ProtectedRoute>} />          
           <Route path="/messages/:messageId/" element={<ProtectedRoute><Message /></ProtectedRoute>} />          
