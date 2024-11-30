@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings } from 'lucide-react';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 import LeftSidebar from './LeftSidebar';
 import NotificationItem from './NotificationItem';
 import useNotification from '../hooks/useNotification';
@@ -54,6 +54,11 @@ export default function NotificationView() {
                     id={notification?.id}
                     is_read={notification?.is_read}
                     message={notification?.message}
+                    sender_avatar={notification?.sender?.profile?.avatar}
+                    user={notification?.sender?.profile?.first_name + " " + notification?.sender?.profile?.last_name}
+                    postId={notification?.post_details?.id}
+                    body={notification?.post_details?.body}
+                    timestamp={notification?.created_at}
                 
                 />
                 ))

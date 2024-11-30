@@ -20,7 +20,7 @@ export default function useNotification() {
     };
 
     useEffect(() => {
-        getFeed(); // Fetch notifications on component mount
+        getFeed();
     }, []);
 
     return { notifications, getFeed, loading, error };

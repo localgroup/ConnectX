@@ -15,39 +15,6 @@ urlpatterns = [
     path('posts/<int:post_pk>/comments/', views.CommentListCreateView.as_view(), name='comment-list'),
     path('comments/<int:pk>/', views.CommentDetailView.as_view(), name='comment-detail'),
     path('follow/<str:username>/', views.FollowView.as_view(), name='follow-user'),
-    # path('notifications/', views.NotificationListView.as_view(), name='notification-list'),
-    path('notifications/<int:pk>/', views.NotificationDetailView.as_view(), name='notification-detail'),
+    path('notifications/', views.NotificationListView.as_view(), name='notification-list'),
     
-    # Unread count
-    path('notifications/unread-count/', views.UnreadNotificationCountView.as_view(), name='unread-count'),
-    
-     # Mark all as read
-    path('notifications/mark-all-read/', views.MarkAllNotificationsReadView.as_view(), name='mark-all-read'),
-    
-    # Delete read notifications
-    path('notifications/delete-read/', views.DeleteReadNotificationsView.as_view(), name='delete-read'),
-]
-
-# from django.urls import path
-# from .views import (
-#     NotificationListView, 
-#     NotificationDetailView, 
-#     UnreadNotificationCountView,
-#     MarkAllNotificationsReadView,
-#     DeleteReadNotificationsView
-# )
-
-# urlpatterns = [
-#     # List and retrieve notifications
-#     path('notifications/', NotificationListView.as_view(), name='notification-list'),
-#     path('notifications/<int:pk>/', NotificationDetailView.as_view(), name='notification-detail'),
-    
-#     # Unread count
-#     path('notifications/unread-count/', UnreadNotificationCountView.as_view(), name='unread-count'),
-    
-#     # Mark all as read
-#     path('notifications/mark-all-read/', MarkAllNotificationsReadView.as_view(), name='mark-all-read'),
-    
-#     # Delete read notifications
-#     path('notifications/delete-read/', DeleteReadNotificationsView.as_view(), name='delete-read'),
-# ]
+    ]

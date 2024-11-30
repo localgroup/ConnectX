@@ -188,20 +188,20 @@ class Notification(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.sender.username} - {self.notification_type} to {self.recipient.username}"
+        return f"{self.sender.first_name} - {self.notification_type} to {self.recipient.username}"
     
     @classmethod
     def create_like_notification(cls, like):
         """
         Create a notification for a like
-        """
+        """  
         return cls.objects.create(
             recipient=like.post.author,
             sender=like.author,
             notification_type=NotificationType.LIKE,
             post=like.post,
             content_object=like,
-            message=f"{like.author.username} liked your post"
+            message=f"{like.author.profile.first_name or like.author.username} liked your post"
         )
     
     @classmethod
@@ -215,7 +215,7 @@ class Notification(models.Model):
             notification_type=NotificationType.COMMENT,
             post=comment.post,
             content_object=comment,
-            message=f"{comment.author.username} commented on your post"
+            message=f"{comment.author.profile.first_name or comment.author.username} commented on your post"
         )
     
     @classmethod
@@ -228,7 +228,7 @@ class Notification(models.Model):
             sender=follow.user,
             notification_type=NotificationType.FOLLOW,
             content_object=follow,
-            message=f"{follow.user.username} started following you"
+            message=f"{follow.author.profile.first_name or follow.author.username} started following you"
         )
     
     @classmethod
@@ -241,7 +241,7 @@ class Notification(models.Model):
             sender=message.sender,
             notification_type=NotificationType.MESSAGE,
             content_object=message,
-            message=f"New message from {message.sender.username}"
+            message=f"New message from {message.sender.first_name}"
         )
     
     def mark_as_read(self):
