@@ -388,6 +388,7 @@ class NotificationListView(generics.ListAPIView):
             return self.get_paginated_response(serializer.data)
         
         serializer = self.get_serializer(queryset, many=True)
+        
         return Response({
             'notifications': serializer.data,
             'total_count': queryset.count(),

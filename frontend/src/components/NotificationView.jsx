@@ -55,10 +55,12 @@ export default function NotificationView() {
                     is_read={notification?.is_read}
                     message={notification?.message}
                     sender_avatar={notification?.sender?.profile?.avatar}
+                    username={notification?.sender?.profile?.username}
                     user={notification?.sender?.profile?.first_name + " " + notification?.sender?.profile?.last_name}
                     postId={notification?.post_details?.id}
                     body={notification?.post_details?.body}
                     timestamp={notification?.created_at}
+                    notification_type={notification?.notification_type}
                 
                 />
                 ))

@@ -140,6 +140,7 @@ class NotificationType(models.TextChoices):
     COMMENT = 'COMMENT', 'Comment'
     FOLLOW = 'FOLLOW', 'Follow'
     MESSAGE = 'MESSAGE', 'Message'
+    
 
 class Notification(models.Model):
     recipient = models.ForeignKey(
@@ -228,7 +229,7 @@ class Notification(models.Model):
             sender=follow.user,
             notification_type=NotificationType.FOLLOW,
             content_object=follow,
-            message=f"{follow.author.profile.first_name or follow.author.username} started following you"
+            message=f"{follow.user.first_name or follow.user.username} started following you"
         )
     
     @classmethod
@@ -243,7 +244,7 @@ class Notification(models.Model):
             content_object=message,
             message=f"New message from {message.sender.first_name}"
         )
-    
+        
     def mark_as_read(self):
         """
         Mark the notification as read
@@ -281,3 +282,5 @@ def create_follow_notification(sender, instance, created, **kwargs):
 def create_message_notification(sender, instance, created, **kwargs):
     if created and not instance.is_read:
         Notification.create_message_notification(instance)
+        
+        
