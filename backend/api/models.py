@@ -140,41 +140,22 @@ class NotificationType(models.TextChoices):
     COMMENT = 'COMMENT', 'Comment'
     FOLLOW = 'FOLLOW', 'Follow'
     MESSAGE = 'MESSAGE', 'Message'
+    MENTION = 'MENTION', 'Mention'
     
 
 class Notification(models.Model):
-    recipient = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name='notifications'
-    )
-    sender = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name='sent_notifications'
-    )
-    notification_type = models.CharField(
-        max_length=20, 
-        choices=NotificationType.choices
-    )
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
+    notification_type = models.CharField(max_length=20, choices=NotificationType.choices)
     
     # Generic foreign key for different notification sources
-    content_type = models.ForeignKey(
-        'contenttypes.ContentType', 
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
+    content_type = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey('content_type', 'object_id')
     
     # Additional context fields
-    post = models.ForeignKey(
-        Post, 
-        on_delete=models.CASCADE, 
-        null=True, 
-        blank=True
-    )
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True)  
+    comment = models.ForeignKey('Comment', on_delete=models.CASCADE, null=True, blank=True)
     
     # Notification details
     message = models.TextField(max_length=255)
@@ -203,6 +184,21 @@ class Notification(models.Model):
             post=like.post,
             content_object=like,
             message=f"{like.author.profile.first_name or like.author.username} liked your post"
+        )
+        
+    @classmethod
+    def create_mention_notification(cls, mention):
+        """
+        Create a notification for a mention
+        """
+        return cls.objects.create(
+            recipient=mention.mentioned_user,
+            sender=mention.user,
+            notification_type=NotificationType.MENTION,
+            post=mention.post,
+            comment=mention.comment,
+            content_object=mention,
+            message=f"{mention.user.profile.first_name or mention.user.username} mentioned you"
         )
     
     @classmethod
@@ -260,6 +256,23 @@ class Notification(models.Model):
         return cls.objects.filter(recipient=user, is_read=False).count()
     
 
+class Mention(models.Model):
+    """
+    Model to track mentions in posts and comments
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mentions')
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, null=True, blank=True, related_name='mentions')
+    comment = models.ForeignKey('Comment', on_delete=models.CASCADE, null=True, blank=True, related_name='mentions')
+    mentioned_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mentioned_in')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user.username} mentioned {self.mentioned_user.username}"
+    
+    class Meta:
+        unique_together = ['user', 'mentioned_user', 'post', 'comment']
+
+
 @receiver(post_save, sender=Likes)
 def create_like_notification(sender, instance, created, **kwargs):
     if created:
@@ -284,3 +297,7 @@ def create_message_notification(sender, instance, created, **kwargs):
         Notification.create_message_notification(instance)
         
         
+
+
+        
+

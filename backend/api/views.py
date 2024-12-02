@@ -8,8 +8,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticate
 from django.contrib.auth.models import User
 from django.db.models import Q
 from .serializers import UserSerializer, ProfileSerializer,MessageSerializer, PostSerializer, CommentSerializer, LikesSerializer, FollowSerializer, NotificationSerializer
-from .models import Profile, Post, Comment, Likes, Follow, Notification, Message
+from .models import Profile, Post, Comment, Likes, Follow, Notification, Message, Mention
 from rest_framework.exceptions import ValidationError, PermissionDenied
+import re
 
 
 class MessageListView(APIView):
@@ -242,7 +243,49 @@ class PostListCreateView(generics.ListCreateAPIView):
             user = get_object_or_404(User, username=username)
             return Post.objects.filter(author=user)
         else:
-            return Post.objects.all()
+            return Post.objects.all()     
+        
+    def perform_create(self, serializer):
+        # Save the post first
+        post = serializer.save(author=self.request.user)
+        
+        # Extract and create mentions
+        content = serializer.validated_data.get('body', '')
+        self.create_mention_notification(content, self.request.user, post=post)
+        
+        return post
+
+    def create_mention_notification(self, content, author, post=None, comment=None):
+        """
+        Extract mentions from content and create Mention and Notification objects
+        """
+        mentioned_usernames = re.findall(r'@(\w+)', content)
+        
+        mentions = []
+        for username in mentioned_usernames:
+            try:
+                mentioned_user = User.objects.get(username=username)
+                
+                # Avoid self-mentions
+                if mentioned_user != author:
+                    # Create Mention
+                    mention = Mention.objects.create(
+                        user=author,
+                        post=post,
+                        comment=comment,
+                        mentioned_user=mentioned_user
+                    )
+                    
+                    # Create Notification (using the class method)
+                    Notification.create_mention_notification(mention)
+                    
+                    mentions.append(mention)
+            
+            except User.DoesNotExist:
+                # Optionally log or handle cases where mentioned user doesn't exist
+                pass
+        
+        return mentions
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -367,12 +410,27 @@ class NotificationListView(generics.ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # def get_queryset(self):
+    #     """
+    #     Return notifications for the current user, ordered by most recent
+    #     """
+    #     return Notification.objects.filter(
+    #         recipient=self.request.user
+    #     ).order_by('-created_at')
+    
     def get_queryset(self):
         """
         Return notifications for the current user, ordered by most recent
         """
         return Notification.objects.filter(
             recipient=self.request.user
+        ).select_related(
+            'sender', 
+            'sender__profile', 
+            'post', 
+            'comment'
+        ).prefetch_related(
+            'content_object'
         ).order_by('-created_at')
 
     def list(self, request, *args, **kwargs):
@@ -380,6 +438,12 @@ class NotificationListView(generics.ListAPIView):
         Custom list method to include additional metadata
         """
         queryset = self.get_queryset()
+        
+        # Optional: Add filtering parameters
+        notification_type = request.query_params.get('type')
+        if notification_type:
+            queryset = queryset.filter(notification_type=notification_type)
+        
         
         # Pagination
         page = self.paginate_queryset(queryset)
@@ -394,3 +458,35 @@ class NotificationListView(generics.ListAPIView):
             'total_count': queryset.count(),
             'unread_count': queryset.filter(is_read=False).count()
         })
+        
+    def create_mention_notification(self, content, author, post=None, comment=None):
+        """
+        Extract mentions from content and create Mention and Notification objects
+        """
+        mentioned_usernames = re.findall(r'@(\w+)', content)
+        
+        mentions = []
+        for username in mentioned_usernames:
+            try:
+                mentioned_user = User.objects.get(username=username)
+                
+                # Avoid self-mentions
+                if mentioned_user != author:
+                    # Create Mention
+                    mention = Mention.objects.create(
+                        user=author,
+                        post=post,
+                        comment=comment,
+                        mentioned_user=mentioned_user
+                    )
+                    
+                    # Create Notification (using the class method)
+                    Notification.create_mention_notification(mention)
+                    
+                    mentions.append(mention)
+            
+            except User.DoesNotExist:
+                # Optionally log or handle cases where mentioned user doesn't exist
+                pass
+        
+        return mentions

@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile, User, Post, Comment, Likes, Follow, Notification, Message
+from .models import Profile, User, Post, Comment, Likes, Follow, Notification, NotificationType, Message, Mention
 from django.conf import settings
+from django.db.models import Q
 from urllib.parse import urljoin
 
 
@@ -287,7 +288,9 @@ class NotificationSerializer(serializers.ModelSerializer):
     
     # Additional context fields
     post_details = serializers.SerializerMethodField()
+    comment_details = serializers.SerializerMethodField()
     sender_avatar = serializers.SerializerMethodField()
+    mention_details = serializers.SerializerMethodField()
     
     class Meta:
         model = Notification
@@ -300,7 +303,9 @@ class NotificationSerializer(serializers.ModelSerializer):
             'message', 
             'is_read', 
             'created_at',
-            'post_details'
+            'post_details',
+            'comment_details',
+            'mention_details'
         ]
     
     def get_sender_avatar(self, obj):
@@ -324,4 +329,65 @@ class NotificationSerializer(serializers.ModelSerializer):
                 'media': obj.post.media.url if obj.post.media else None,
                 'created_at': obj.post.created_at
             }
+        return None
+    
+    def get_comment_details(self, obj):
+        """
+        Get additional details about the related comment
+        """
+        if obj.comment:
+            return {
+                'id': obj.comment.id,
+                'content': obj.comment.content,
+                'author': obj.comment.author.username,
+                'created_at': obj.comment.created_at
+            }
+        return None
+    
+    def get_mention_details(self, obj):
+        """
+        Get details about the mention if the notification is a mention
+        """
+        if obj.notification_type == NotificationType.MENTION:
+            try:
+                mention = Mention.objects.get(
+                    Q(post=obj.post) | Q(comment=obj.comment), 
+                    user=obj.sender, 
+                    mentioned_user=obj.recipient
+                )
+                return MentionSerializer(mention, context=self.context).data
+            except Mention.DoesNotExist:
+                return None
+        return None
+
+
+class MentionSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(source='user.username', read_only=True)
+    mentioned_user = serializers.StringRelatedField(source='mentioned_user.username', read_only=True)
+    user_avatar = serializers.SerializerMethodField()
+    mentioned_user_avatar = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Mention
+        fields = [
+            'id', 
+            'user', 
+            'user_avatar', 
+            'mentioned_user', 
+            'mentioned_user_avatar',
+            'post', 
+            'comment', 
+            'created_at'
+        ]
+    
+    def get_user_avatar(self, obj):
+        request = self.context.get('request')
+        if obj.user.profile.avatar:
+            return request.build_absolute_uri(obj.user.profile.avatar.url)
+        return None
+    
+    def get_mentioned_user_avatar(self, obj):
+        request = self.context.get('request')
+        if obj.mentioned_user.profile.avatar:
+            return request.build_absolute_uri(obj.mentioned_user.profile.avatar.url)
         return None
